@@ -32,11 +32,14 @@ jobs:
           npm run typecheck
           npm run lint
 
-      - name: Compile and Build Package
-        run: npm run build --if-present
-
       - name: Run Quality Verification Tests
         run: npm test
 
+      - name: Compile and Build Package
+        run: npm run build
+
+      - name: Verify npm Package Contents
+        run: npm pack --dry-run
+  
       - name: Stage Package via Trusted Publishing
         run: npm stage publish

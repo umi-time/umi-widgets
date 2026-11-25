@@ -46,13 +46,17 @@ describe("<umi-clock>", () => {
     clock.setAttribute("dark", "true");
     expect(clock.darkMode).toBe(true);
     expect(
-      clock.shadowRoot?.querySelector("#bezelGroup")?.classList.contains("dark-mode"),
+      clock.shadowRoot
+        ?.querySelector("#bezelGroup")
+        ?.classList.contains("dark-mode"),
     ).toBe(true);
 
     clock.setAttribute("dark", "false");
     expect(clock.darkMode).toBe(false);
     expect(
-      clock.shadowRoot?.querySelector("#bezelGroup")?.classList.contains("dark-mode"),
+      clock.shadowRoot
+        ?.querySelector("#bezelGroup")
+        ?.classList.contains("dark-mode"),
     ).toBe(false);
   });
 
@@ -63,5 +67,36 @@ describe("<umi-clock>", () => {
 
     clock.remove();
     expect(window.cancelAnimationFrame).toHaveBeenCalledWith(1);
+  });
+
+  it("falls back to offset 0 for invalid offset values", () => {
+    const clock = document.createElement("umi-clock") as UmiClock;
+
+    clock.setAttribute("offset", "abc");
+
+    expect(clock.offset).toBe(0);
+  });
+
+  it("updates timezone from the timezone attribute", () => {
+    const clock = document.createElement("umi-clock") as UmiClock;
+
+    clock.setAttribute("timezone", "America/Los_Angeles");
+
+    expect(clock.timezone).toBe("America/Los_Angeles");
+  });
+
+  it("updates the clock size", () => {
+    const clock = document.createElement("umi-clock") as UmiClock;
+
+    document.body.appendChild(clock);
+
+    clock.setAttribute("size", "500px");
+
+    const root = clock.shadowRoot?.querySelector(
+      ".umi-clock-root",
+    ) as HTMLDivElement;
+
+    expect(root.style.width).toBe("500px");
+    expect(root.style.height).toBe("500px");
   });
 });

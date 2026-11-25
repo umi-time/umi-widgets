@@ -9,6 +9,7 @@ yarn-debug.log*
 yarn-error.log*
 *.log
 *.tmp
+*.tgz
 
 # ------------------------------------------------------------
 # Build output
@@ -16,10 +17,6 @@ yarn-error.log*
 dist/
 **/dist/
 tsup.config.ts.tmp
-
-# Astro build artifacts
-www/dist/
-www/.astro/
 
 # ------------------------------------------------------------
 # TypeScript

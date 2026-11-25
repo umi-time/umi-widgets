@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Umi Widgets Component Gallery</title>
+
+    <style>
+      :root {
+        --surface: #ffffff;
+        --background: #e9ecef;
+        --border: #d0d7de;
+        --text: #1f2937;
+        --muted: #6b7280;
+      }
+
+      body {
+        font-family: system-ui, sans-serif;
+        margin: 0;
+        padding: 2rem;
+        background: var(--background);
+        color: var(--text);
+      }
+
+      header {
+        margin-bottom: 2rem;
+      }
+
+      header h1 {
+        margin: 0;
+      }
+
+      header p {
+        color: var(--muted);
+        max-width: 60rem;
+      }
+
+      .gallery {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+      }
+
+      .component-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+      }
+
+      .component-card h2 {
+        margin-top: 0;
+      }
+
+      .description {
+        color: var(--muted);
+        margin-bottom: 1rem;
+      }
+
+      .example-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+        align-items: flex-start;
+      }
+
+      .example {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .example label {
+        font-size: 0.875rem;
+        color: var(--muted);
+      }
+
+      umi-clock {
+        width: 380px;
+        height: 380px;
+      }
+
+      .wide {
+        width: 100%;
+      }
+
+      .clock-showcase {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+        justify-content: center;
+      }
+
+      .clock-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+
+        min-width: 420px;
+      }
+
+      .clock-stage {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 420px;
+        height: 420px;
+
+        overflow: hidden;
+
+        border-radius: 12px;
+        background: #f8fafc;
+        border: 1px solid var(--border);
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <h1>Umi Widgets Gallery</h1>
+      <p>
+        A visual showcase of the reusable widgets included in the Umi-Time
+        component library. This page serves as a development sandbox and manual
+        integration test environment.
+      </p>
+    </header>
+
+    <main class="gallery">
+      <!-- umi-time -->
+
+      <section class="component-card">
+        <h2>&lt;umi-time&gt;</h2>
+
+        <p class="description">
+          Produces canonical Umi-Time specification strings suitable for machine
+          processing, serialization, and precise display.
+        </p>
+
+        <div class="example-row">
+          <div class="example">
+            <umi-time live format="Uuuu:sss"></umi-time>
+            <label>Live canonical time</label>
+          </div>
+
+          <div class="example">
+            <umi-time
+              value="2026-11-01T09:34:56Z"
+              format="yyyy-MM-ddUuuu:sssG24+"
+              longitude="-120.64"
+            >
+            </umi-time>
+
+            <label>Formatted specification</label>
+          </div>
+        </div>
+      </section>
+
+      <!-- umi-display -->
+
+      <section class="component-card">
+        <h2>&lt;umi-display&gt;</h2>
+
+        <p class="description">
+          Human-friendly Umi-Time readouts for user interfaces.
+        </p>
+
+        <div class="example-row">
+          <div class="example">
+            <umi-display live></umi-display>
+            <label>Umi only</label>
+          </div>
+
+          <div class="example">
+            <umi-display live seconds></umi-display>
+            <label>Umi + seconds</label>
+          </div>
+
+          <div class="example">
+            <umi-display live longitude="-120.64"></umi-display>
+            <label>Umi + phase</label>
+          </div>
+
+          <div class="example">
+            <umi-display live seconds longitude="-120.64"></umi-display>
+            <label>Full display</label>
+          </div>
+        </div>
+      </section>
+
+      <!-- umi-clock -->
+
+      <section class="component-card">
+        <h2>&lt;umi-clock&gt;</h2>
+
+        <p class="description">
+          A location-aware Umi-Time clock showing local solar context, daylight,
+          twilight, and Umi progression throughout the day.
+        </p>
+
+        <div class="clock-showcase">
+          <div class="clock-card">
+            <div class="clock-stage">
+              <umi-clock
+                latitude="35.14"
+                longitude="-120.64"
+                size="380px"
+                timezone="America/Los_Angeles"
+              >
+              </umi-clock>
+            </div>
+
+            <label>Pismo Beach</label>
+          </div>
+
+          <div class="clock-card">
+            <div class="clock-stage">
+              <umi-clock
+                latitude="69.65"
+                longitude="18.96"
+                size="380px"
+                timezone="Europe/Oslo"
+                dark
+              >
+              </umi-clock>
+            </div>
+
+            <label>Tromsø (Dark Mode)</label>
+          </div>
+        </div>
+      </section>
+
+      <!-- umi-time-explorer -->
+
+      <section class="component-card">
+        <h2>&lt;umi-time-explorer&gt;</h2>
+
+        <p class="description">
+          Interactive controls for exploring different dates and Umi offsets.
+        </p>
+
+        <umi-time-explorer class="wide"></umi-time-explorer>
+      </section>
+
+      <!-- umi-timeline -->
+
+      <section class="component-card">
+        <h2>&lt;umi-timeline&gt;</h2>
+
+        <p class="description">
+          Visualizes a single shared Umi-Time moment across multiple geographic
+          locations and solar conditions.
+        </p>
+
+        <umi-timeline class="wide" live show-phases>
+          <umi-timeline-row
+            label="Pismo Beach"
+            latitude="35.14"
+            longitude="-120.64"
+          >
+          </umi-timeline-row>
+
+          <umi-timeline-row label="London" latitude="51.51" longitude="-0.13">
+          </umi-timeline-row>
+
+          <umi-timeline-row label="Tokyo" latitude="35.68" longitude="139.69">
+          </umi-timeline-row>
+        </umi-timeline>
+      </section>
+
+      <!-- umi-world-map -->
+
+      <section class="component-card">
+        <h2>&lt;umi-world-map&gt;</h2>
+
+        <p class="description">
+          Interactive world map featuring daylight regions, latitude and
+          longitude grids, pinned clocks, cursor clocks, and timezone overlays.
+        </p>
+
+        <umi-world-map
+          class="wide"
+          live
+          show-latitude-grid
+          show-longitude-grid
+          show-terminator
+          show-pinned-clocks
+          show-cursor-clock
+          show-grid-overlay
+        >
+          <umi-timezones></umi-timezones>
+
+          <umi-location
+            label="Pismo Beach"
+            latitude="35.14"
+            longitude="-120.64"
+          >
+          </umi-location>
+
+          <umi-location label="London" latitude="51.5072" longitude="-0.1276">
+          </umi-location>
+
+          <umi-location label="Tokyo" latitude="35.6764" longitude="139.65">
+          </umi-location>
+        </umi-world-map>
+      </section>
+
+      <!-- umi-tip-rotator -->
+
+      <section class="component-card">
+        <h2>&lt;umi-tip-rotator&gt;</h2>
+
+        <p class="description">
+          Displays rotating educational tips and onboarding content.
+        </p>
+
+        <umi-tip-rotator storage-key="gallery-tips">
+          <umi-tip
+            focus-on="Umi-Time"
+            explanation="One universal time shared everywhere on Earth."
+          >
+          </umi-tip>
+
+          <umi-tip
+            focus-on="360 umi"
+            explanation="A day contains exactly 360 umi."
+          >
+          </umi-tip>
+
+          <umi-tip
+            focus-on="240 seconds"
+            explanation="Each umi contains exactly 240 UTC seconds."
+          >
+          </umi-tip>
+        </umi-tip-rotator>
+      </section>
+
+      <!-- umi-options-menu -->
+
+      <section class="component-card">
+        <h2>&lt;umi-options-menu&gt;</h2>
+
+        <p class="description">
+          Persistent toggle menu for enabling and disabling application
+          features.
+        </p>
+
+        <umi-options-menu label="Display Options" storage-key="gallery-options">
+          <umi-option value="grid" checked> Grid Overlay </umi-option>
+
+          <umi-option value="labels" checked> Labels </umi-option>
+
+          <umi-option value="tips"> Tips </umi-option>
+        </umi-options-menu>
+      </section>
+    </main>
+
+    <script src="../dist/umi-widgets.min.js"></script>
+  </body>
+</html>

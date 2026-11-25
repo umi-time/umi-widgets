@@ -8,9 +8,9 @@
   "sideEffects": [
     "./dist/index.js",
     "./dist/index.cjs",
-    "./dist/elements/*.js",
-    "./dist/elements/*.cjs",
-    "./dist/tokens/*.css"
+    "./dist/elements/**/*.js",
+    "./dist/elements/**/*.cjs",
+    "./dist/**/*.css"
   ],
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -33,7 +33,66 @@
       "import": "./dist/elements/umi-clock/index.js",
       "require": "./dist/elements/umi-clock/index.cjs"
     },
-    "./tokens/theme.css": "./dist/tokens/theme.css"
+    "./elements/umi-demo-bouncing-clock": {
+      "types": "./dist/elements/umi-demo-bouncing-clock/index.d.ts",
+      "import": "./dist/elements/umi-demo-bouncing-clock/index.js",
+      "require": "./dist/elements/umi-demo-bouncing-clock/index.cjs"
+    },
+    "./elements/umi-demo-world-map": {
+      "types": "./dist/elements/umi-demo-world-map/index.d.ts",
+      "import": "./dist/elements/umi-demo-world-map/index.js",
+      "require": "./dist/elements/umi-demo-world-map/index.cjs"
+    },
+    "./elements/umi-display": {
+      "types": "./dist/elements/umi-display/index.d.ts",
+      "import": "./dist/elements/umi-display/index.js",
+      "require": "./dist/elements/umi-display/index.cjs"
+    },
+    "./elements/umi-location": {
+      "types": "./dist/elements/umi-location/index.d.ts",
+      "import": "./dist/elements/umi-location/index.js",
+      "require": "./dist/elements/umi-location/index.cjs"
+    },
+    "./elements/umi-options-menu": {
+      "types": "./dist/elements/umi-options-menu/index.d.ts",
+      "import": "./dist/elements/umi-options-menu/index.js",
+      "require": "./dist/elements/umi-options-menu/index.cjs"
+    },
+    "./elements/umi-time": {
+      "types": "./dist/elements/umi-time/index.d.ts",
+      "import": "./dist/elements/umi-time/index.js",
+      "require": "./dist/elements/umi-time/index.cjs"
+    },
+    "./elements/umi-time-explorer": {
+      "types": "./dist/elements/umi-time-explorer/index.d.ts",
+      "import": "./dist/elements/umi-time-explorer/index.js",
+      "require": "./dist/elements/umi-time-explorer/index.cjs"
+    },
+    "./elements/umi-timeline": {
+      "types": "./dist/elements/umi-timeline/index.d.ts",
+      "import": "./dist/elements/umi-timeline/index.js",
+      "require": "./dist/elements/umi-timeline/index.cjs"
+    },
+    "./elements/umi-timezones": {
+      "types": "./dist/elements/umi-timezones/index.d.ts",
+      "import": "./dist/elements/umi-timezones/index.js",
+      "require": "./dist/elements/umi-timezones/index.cjs"
+    },
+    "./elements/umi-tip": {
+      "types": "./dist/elements/umi-tip/index.d.ts",
+      "import": "./dist/elements/umi-tip/index.js",
+      "require": "./dist/elements/umi-tip/index.cjs"
+    },
+    "./elements/umi-tip-rotator": {
+      "types": "./dist/elements/umi-tip-rotator/index.d.ts",
+      "import": "./dist/elements/umi-tip-rotator/index.js",
+      "require": "./dist/elements/umi-tip-rotator/index.cjs"
+    },
+    "./elements/umi-world-map": {
+      "types": "./dist/elements/umi-world-map/index.d.ts",
+      "import": "./dist/elements/umi-world-map/index.js",
+      "require": "./dist/elements/umi-world-map/index.cjs"
+    }
   },
   "files": [
     "dist",
@@ -46,7 +105,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint src",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm run test && npm run build"
   },
   "dependencies": {
     "umi-time": "^1.0.0"

@@ -1,110 +1,290 @@
 # umi-widgets
 
-Official Web Components and interactive UI widgets for **[Umi-Time](https://umitime.com)**, powered by [`umi-time`](https://npmjs.com/package/umi-time).
+> Framework-independent Web Components for Umi-Time.
 
-## Installation
+`umi-widgets` provides a collection of reusable custom elements for displaying, exploring, and teaching Umi-Time on the web.
 
-### Via npm (Bundlers & Frameworks)
+Whether you're building a full Umi-Time application, embedding a live clock on a website, or creating educational tools, `umi-widgets` offers ready-to-use components that work in plain HTML and modern frameworks including React, Vue, Svelte, Ember, Angular, and more.
+
+✅ Framework-independent  
+✅ TypeScript support  
+✅ Solar-aware visualizations  
+✅ Interactive educational tools  
+✅ Modular imports  
+✅ Built on top of `umi-time`
+
+---
+
+## What is Umi-Time?
+
+Umi-Time is an alternative timekeeping system built around a decimalized day.
+
+A complete day contains:
+
+- 240 umi
+- 1 umi = 1000 seconds
+- Geographic longitude can be incorporated directly into time calculations
+- Visualizations can account for daylight and solar position
+
+The widgets in this package make it easy to display, visualize, and explore Umi-Time without building custom UI components from scratch.
+
+Learn more at the Umi-Time project website.
+
+---
+
+## Widget Gallery
+
+![Widget Gallery Placeholder](docs/images/readme-hero-collage.png)
+
+### Included Widgets
+
+| Widget | Purpose |
+|----------|----------|
+| `umi-clock` | Live analog and digital Umi-Time clock |
+| `umi-display` | Human-friendly formatted output |
+| `umi-time` | Canonical Umi-Time representation |
+| `umi-world-map` | Global visualization |
+| `umi-timeline` | Multi-location comparison |
+| `umi-time-explorer` | Interactive educational explorer |
+| `umi-timezones` | Regional time comparison |
+
+---
+
+## Quick Start
+
+### Install
 
 ```bash
 npm install umi-widgets
 ```
 
-### Via CDN (Zero-Build HTML)
+### Register all widgets
 
-Drop a single `<script>` tag into any HTML page to register all `<umi-*>` elements automatically:
-
-```html
-<script src="https://unpkg.com/umi-widgets/dist/umi-widgets.min.js"></script>
+```ts
+import "umi-widgets";
 ```
 
-## Usage
-
-### `<umi-clock>`
-
-An analog and digital Umi-Time dial featuring a longitude-oriented dial face, live solar elevation ring, sunrise/sunset indicators, and a 24-segment bezel.
-
-#### In HTML (with CDN script or global registration)
+### Use in HTML
 
 ```html
 <umi-clock
-  latitude="35.14"
-  longitude="-120.64"
-  size="380px"
-  dark="false"
-></umi-clock>
+  latitude="35.121"
+  longitude="-120.641"
+  size="400px">
+</umi-clock>
 ```
 
-#### In JavaScript / TypeScript
+---
+
+## Featured Widgets
+
+### umi-clock
+
+A live Umi-Time clock with optional location, solar, and educational features.
+
+![Clock Placeholder](docs/images/readme-clock.png)
+
+```html
+<umi-clock
+  latitude="35.121"
+  longitude="-120.641">
+</umi-clock>
+```
+
+---
+
+### umi-world-map
+
+Visualize Umi-Time around the world.
+
+![World Map Placeholder](docs/images/readme-world-map.png)
+
+```html
+<umi-world-map></umi-world-map>
+```
+
+---
+
+### umi-timeline
+
+Compare local time across multiple locations.
+
+![Timeline Placeholder](docs/images/readme-timeline.png)
+
+```html
+<umi-timeline></umi-timeline>
+```
+
+---
+
+### umi-time-explorer
+
+Explore relationships between date, season, longitude, solar position, and Umi-Time.
+
+![Explorer Placeholder](docs/images/readme-explorer.png)
+
+```html
+<umi-time-explorer></umi-time-explorer>
+```
+
+---
+
+## Framework Support
+
+Because every widget is built using standards-based Web Components, they can be used in virtually any modern framework.
+
+### React
+
+```tsx
+import "umi-widgets";
+
+export default function App() {
+  return <umi-clock />;
+}
+```
+
+### Vue
+
+```vue
+<template>
+  <umi-clock />
+</template>
+
+<script setup>
+import "umi-widgets";
+</script>
+```
+
+### Svelte
+
+```svelte
+<script>
+  import "umi-widgets";
+</script>
+
+<umi-clock />
+```
+
+### Ember
+
+```js
+// app.js
+import "umi-widgets";
+```
+
+```hbs
+<UmiClock />
+```
+
+Alternatively, invoke the custom element directly:
+
+```hbs
+<umi-clock></umi-clock>
+```
+
+### Angular
 
 ```ts
-// Import only <umi-clock> to keep bundle size small
+import "umi-widgets";
+```
+
+```html
+<umi-clock></umi-clock>
+```
+
+---
+
+## Modular Imports
+
+Import only the widgets you need.
+
+```ts
 import "umi-widgets/elements/umi-clock";
-
-// Or import and register all widgets
-// import "umi-widgets";
-
-const clock = document.querySelector("umi-clock");
-clock?.setLocation(69.65, 18.96); // Tromsø, Norway
-clock?.setSize("420px");
 ```
 
-#### Attributes
-
-| Attribute | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `latitude` | `number` | `0` | Observer latitude in decimal degrees (`-90` to `90`). |
-| `longitude` | `number` | `0` | Observer longitude in decimal degrees (`-180` to `180`). |
-| `timezone` | `string` | System timezone | IANA timezone name used for the secondary civil-time readout. |
-| `size` | `string` | `"900px"` | CSS width and height of the clock container (e.g., `"380px"`). |
-| `dark` | `boolean` | `"false"` | Enables dark mode dial and bezel styling (`"true"` or `"false"`). |
-| `update-interval` | `number` | `100` | Refresh interval configuration in milliseconds. |
-
-#### Methods
-
-* `setLocation(latitude: number, longitude: number): void` — Clamps coordinates to valid bounds, updates attributes, and recalculates solar geometry immediately.
-* `setSize(size: string): void` — Updates the `size` attribute and recalculates the radial solar-ring mask.
-* `refresh(): void` — Forces an immediate render update.
-* `start(): void` / `stop(): void` — Starts or stops the `requestAnimationFrame` update loop.
-
-## Project Structure
-
-```text
-umi-widgets/
-  src/
-    index.ts                ← Root entry point & full registration
-    elements/
-      index.ts              ← All Web Components barrel
-      umi-clock/
-        index.ts            ← <umi-clock> registration & exports
-        umi-clock.ts        ← <umi-clock> implementation
-        umi-clock.test.ts   ← Component test suite
-    shared/
-      colors.ts             ← Solar altitude color scales & conic-gradient builder
-      coordinates.ts        ← Latitude & longitude clamping helpers
-  demo/
-    index.html              ← Local browser preview page
+```ts
+import "umi-widgets/elements/umi-world-map";
 ```
+
+```ts
+import "umi-widgets/elements/umi-time-explorer";
+```
+
+This can reduce bundle size by avoiding registration of unused components.
+
+---
+
+## Educational Applications
+
+The widget library was designed not only for displaying Umi-Time, but also for teaching it.
+
+Use cases include:
+
+- Interactive demonstrations
+- Classroom presentations
+- Personal learning tools
+- Experimental calendar systems
+- Geography and longitude visualizations
+- Solar and daylight exploration
+
+---
+
+## Mobile Friendly
+
+![Mobile Placeholder](docs/images/readme-mobile.png)
+
+Widgets are designed to work across desktop and mobile devices.
+
+---
 
 ## Development
 
+Install dependencies:
+
 ```bash
 npm install
-npm run build      # Compiles ESM, CJS, .d.ts, and minified IIFE bundles
-npm test           # Runs Vitest suite in happy-dom
-npm run typecheck  # Runs strict TypeScript checks
-npm run lint       # Runs ESLint
 ```
 
-To preview `demo/index.html` locally after building:
+Start the development server:
 
 ```bash
-npx serve .
+npm run dev
 ```
 
-Then open `http://localhost:3000/demo/`.
+Build the project:
+
+```bash
+npm run build
+```
+
+Run tests:
+
+```bash
+npm test
+```
+
+---
+
+## Documentation
+
+See the project documentation for:
+
+- Component reference
+- Attributes and properties
+- Methods and events
+- Framework-specific guidance
+- Advanced examples
+
+---
+
+## Contributing
+
+Contributions, ideas, bug reports, and improvements are welcome.
+
+Please open an issue or submit a pull request.
+
+---
 
 ## License
 
-MIT License  
-© 2026 Daniel Brannon and Umi-Time Contributors
+MIT
