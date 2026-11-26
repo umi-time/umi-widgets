@@ -1,9 +1,29 @@
 {
-  "name": "umi-widgets",
-  "version": "0.1.0",
-  "description": "Official Web Components and interactive UI widgets for Umi-Time",
+  "name": "@umi-time/widgets",
+  "version": "1.0.0",
+  "description": "Official Web Components and interactive UI widgets for Umi‑Time",
+  "author": "Daniel Brannon <contact@umitime.com> and Umi-Time contributors",
+  "bugs": {
+    "url": "https://github.com/umi-time/umi-widgets/issues",
+    "email": "security@umitime.com"
+  },
   "license": "MIT",
-  "author": "Daniel Brannon",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/umi-time/umi-widgets.git"
+  },
+  "homepage": "https://www.umitime.com/",
+  "keywords": [
+    "umi-time",
+    "umi",
+    "utc",
+    "time",
+    "timekeeping",
+    "astronomy",
+    "solar",
+    "planetary",
+    "clock"
+  ],
   "type": "module",
   "sideEffects": [
     "./dist/index.js",
@@ -122,11 +142,6 @@
     "typescript-eslint": "^8.72.2",
     "vitest": "^5.1.1"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/umi-time/umi-widgets.git"
-  },
-  "homepage": "https://www.umitime.com/",
   "allowScripts": {
     "esbuild@0.28.2": true
   }
