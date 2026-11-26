@@ -22,7 +22,6 @@ export default defineConfig([
     format: ["esm", "cjs"],
     dts: true,
     sourcemap: true,
-    clean: true,
     external: ["umi-time"],
     loader: {
       ".svg": "text",

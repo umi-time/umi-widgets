@@ -10,7 +10,8 @@
     "./dist/index.cjs",
     "./dist/elements/**/*.js",
     "./dist/elements/**/*.cjs",
-    "./dist/**/*.css"
+    "./dist/**/*.css",
+    "./src/elements/**/*.ts"
   ],
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -100,7 +101,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\" && tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src",
