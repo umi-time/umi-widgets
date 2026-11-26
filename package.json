@@ -112,7 +112,7 @@
     "umi-time": "^1.0.0"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
+    "@types/node": "^26.6.6",
     "eslint": "^9.0.0",
     "happy-dom": "^17.0.0",
     "tsup": "^9.0.0",
