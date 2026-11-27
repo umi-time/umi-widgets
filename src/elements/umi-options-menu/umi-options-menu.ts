@@ -2,10 +2,31 @@
 
 import "./umi-option";
 
-export type UmiOptionsMenuAttribute =
-  | "label";
+/**
+ * Supported attributes for the <umi-options-menu> element.
+ */
+export type UmiOptionsMenuAttribute = "label";
 
-export class UmiOptionsMenuElement extends HTMLElement {
+/**
+ * Event detail for the "umi-option-change" event.
+ *
+ * Contains the option value and its new checked state.
+ */
+export interface UmiOptionChangeDetail {
+  /** Option value associated with the change. */
+  value: string;
+
+  /** Indicates whether the option is now checked. */
+  checked: boolean;
+}
+
+/**
+ * Presents a configurable menu of selectable options and emits events
+ * when an option's checked state changes.
+ * @event umi-option-change Fired when an option is toggled.
+ * detail: UmiOptionChangeDetail
+ */
+export class UmiOptionsMenu extends HTMLElement {
   static get observedAttributes(): readonly UmiOptionsMenuAttribute[] {
     return ["label"];
   }
@@ -19,6 +40,21 @@ export class UmiOptionsMenuElement extends HTMLElement {
   private labelElement!: HTMLDivElement;
   private optionsContainer!: HTMLDivElement;
 
+  private _label = "Options";
+
+  /** Label displayed above the options menu. */
+  public get label(): string {
+    return this._label;
+  }
+
+  public set label(value: string) {
+    this._label = value;
+
+    if (this.getAttribute("label") !== value) {
+      this.setAttribute("label", value);
+    }
+  }
+
   constructor() {
     super();
 
@@ -27,10 +63,6 @@ export class UmiOptionsMenuElement extends HTMLElement {
     });
 
     this.handleDocumentClick = this.handleDocumentClick.bind(this);
-  }
-
-  get label(): string {
-    return this.getAttribute("label") ?? "Options";
   }
 
   connectedCallback(): void {
@@ -46,10 +78,26 @@ export class UmiOptionsMenuElement extends HTMLElement {
     document.removeEventListener("click", this.handleDocumentClick);
   }
 
-  attributeChangedCallback(name: string): void {
-    if (name === "label" && this.labelElement) {
+  attributeChangedCallback(
+    name: string,
+    _oldValue: string | null,
+    value: string | null,
+  ): void {
+    switch (name as UmiOptionsMenuAttribute) {
+      case "label":
+        this._label = value ?? "";
+        break;
+    }
+
+    this.refresh();
+  }
+
+  private refresh(): void {
+    if (this.labelElement) {
       this.labelElement.textContent = this.label;
     }
+
+    this.rebuildOptions();
   }
 
   private render(): void {
@@ -231,6 +279,6 @@ export class UmiOptionsMenuElement extends HTMLElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "umi-options-menu": UmiOptionsMenuElement;
+    "umi-options-menu": UmiOptionsMenu;
   }
 }

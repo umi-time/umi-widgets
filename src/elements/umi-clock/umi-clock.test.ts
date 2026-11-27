@@ -44,7 +44,7 @@ describe("<umi-clock>", () => {
     document.body.appendChild(clock);
 
     clock.setAttribute("dark", "true");
-    expect(clock.darkMode).toBe(true);
+    expect(clock.dark).toBe(true);
     expect(
       clock.shadowRoot
         ?.querySelector("#bezelGroup")
@@ -52,7 +52,7 @@ describe("<umi-clock>", () => {
     ).toBe(true);
 
     clock.setAttribute("dark", "false");
-    expect(clock.darkMode).toBe(false);
+    expect(clock.dark).toBe(false);
     expect(
       clock.shadowRoot
         ?.querySelector("#bezelGroup")

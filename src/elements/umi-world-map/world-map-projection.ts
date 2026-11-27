@@ -1,21 +1,34 @@
 // src/elements/umi-world-map/world-map-projection.ts
 
+/**
+ * A point in projected map coordinates.
+ */
 export interface MapPoint {
+  /** Horizontal position in pixels. */
   x: number;
+
+  /** Vertical position in pixels. */
   y: number;
 }
 
+/**
+ * A geographic location expressed in latitude and longitude coordinates.
+ */
 export interface GeoPoint {
+  /** Latitude in decimal degrees. */
   latitude: number;
+
+  /** Longitude in decimal degrees. */
   longitude: number;
 }
 
 /**
- * Bounds of the current world-map SVG asset.
+ * Bounds of the current world map projection and SVG artwork.
  *
- * These values come from the existing www world-map
- * implementation and should not be changed without
- * updating the artwork.
+ * These values define the latitude and longitude limits represented by
+ * the world-map asset and projection. They are derived from the existing
+ * Umi-Time world map implementation and should not be changed without
+ * verifying that the underlying artwork and projection remain aligned.
  */
 export const MAP_MIN_LATITUDE = -74.78;
 export const MAP_MAX_LATITUDE = 83.64;
@@ -40,12 +53,16 @@ function mercatorY(latitude: number): number {
 }
 
 /**
- * Convert geographic coordinates to map coordinates.
+ * Projects geographic coordinates onto the world map.
  *
- * Returns x/y values in the range:
+ * Converts latitude and longitude coordinates into map coordinates
+ * within the bounds of the rendered projection.
  *
- * x: 0 .. width
- * y: 0 .. height
+ * @param latitude Latitude in decimal degrees.
+ * @param longitude Longitude in decimal degrees.
+ * @param width Width of the map in pixels.
+ * @param height Height of the map in pixels.
+ * @returns Projected map coordinates.
  */
 export function mercatorProject(
   latitude: number,
@@ -64,8 +81,16 @@ export function mercatorProject(
 }
 
 /**
- * Convert map coordinates back into
- * geographic coordinates.
+ * Converts projected map coordinates back into geographic coordinates.
+ *
+ * This is the inverse of mercatorProject() and is typically used to
+ * translate map positions into latitude and longitude values.
+ *
+ * @param x Horizontal map position in pixels.
+ * @param y Vertical map position in pixels.
+ * @param width Width of the map in pixels.
+ * @param height Height of the map in pixels.
+ * @returns Geographic coordinates in decimal degrees.
  */
 export function mercatorInverse(
   x: number,

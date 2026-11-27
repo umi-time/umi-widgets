@@ -1,36 +1,58 @@
 // src/elements/umi-time-explorer/umi-time-explorer.ts
 
-import "../umi-display";
+import "../umi-readout";
 
+/**
+ * Supported attributes for the <umi-time-explorer> element.
+ */
 export type UmiTimeExplorerAttribute = "mode";
 
+/**
+ * Available modes for the <umi-time-explorer> element.
+ *
+ * - "datetime" allows selecting both the day and time.
+ * - "day" allows selecting only the day.
+ * - "time" allows selecting only the time.
+ */
 export type UmiTimeExplorerMode = "datetime" | "day" | "time";
 
-const DATE_FORMATTER =
-  new Intl.DateTimeFormat(
-    undefined,
-    {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      timeZone: "UTC",
-    },
-  );
+const DATE_FORMATTER = new Intl.DateTimeFormat(undefined, {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  timeZone: "UTC",
+});
 
-export class UmiTimeExplorerElement extends HTMLElement {
+/**
+ * Event detail for the "umi-time-change" event.
+ *
+ * Contains the selected time offset expressed as a total number of umi
+ * from the current day and time selection.
+ */
+export interface UmiTimeChangeDetail {
+  /** Selected day offset × 360 plus selected umi offset. */
+  offset: number;
+}
+
+/**
+ * Provides controls for exploring Umi-Time by adjusting the selected
+ * day, time, or both. Changes are emitted as events that can be used
+ * to drive other Umi-Time visualizations and displays.
+ * @event umi-time-change Fired when the selected time changes.
+ * detail: UmiTimeChangeDetail
+ */
+export class UmiTimeExplorer extends HTMLElement {
   static get observedAttributes(): readonly UmiTimeExplorerAttribute[] {
     return ["mode"];
   }
 
   private shadowRootRef: ShadowRoot;
 
-  private modeValue: UmiTimeExplorerMode = "datetime";
-
   private selectedDayOffset = 0;
   private selectedUmiOffset = 0;
 
   private umiDateElement!: HTMLDivElement;
-  private umiDisplayElement!: HTMLElement;
+  private umiReadoutElement!: HTMLElement;
 
   private dayContainerElement!: HTMLDivElement;
   private daySliderElement!: HTMLInputElement;
@@ -42,6 +64,8 @@ export class UmiTimeExplorerElement extends HTMLElement {
 
   private displayTimer: number | undefined;
 
+  private _mode: UmiTimeExplorerMode = "datetime";
+
   constructor() {
     super();
 
@@ -51,13 +75,13 @@ export class UmiTimeExplorerElement extends HTMLElement {
   }
 
   get mode(): UmiTimeExplorerMode {
-    return this.modeValue;
+    return this._mode;
   }
 
   set mode(value: UmiTimeExplorerMode) {
     const normalized = this.normalizeMode(value);
 
-    this.modeValue = normalized;
+    this._mode = normalized;
 
     if (this.getAttribute("mode") !== normalized) {
       this.setAttribute("mode", normalized);
@@ -92,7 +116,7 @@ export class UmiTimeExplorerElement extends HTMLElement {
       return;
     }
 
-    this.modeValue = this.normalizeMode(value);
+    this._mode = this.normalizeMode(value);
 
     if (!this.isConnected) {
       return;
@@ -299,7 +323,7 @@ export class UmiTimeExplorerElement extends HTMLElement {
 
         <div class="selection">
           <div class="selection-date"></div>
-          <umi-display class="selection-time"></umi-display>
+          <umi-readout class="selection-time"></umi-readout>
         </div>
 
       </div>
@@ -309,7 +333,7 @@ export class UmiTimeExplorerElement extends HTMLElement {
       ".selection-date",
     ) as HTMLDivElement;
 
-    this.umiDisplayElement = this.shadowRootRef.querySelector(
+    this.umiReadoutElement = this.shadowRootRef.querySelector(
       ".selection-time",
     ) as HTMLElement;
 
@@ -374,9 +398,9 @@ export class UmiTimeExplorerElement extends HTMLElement {
       return;
     }
 
-    this.dayContainerElement.hidden = this.modeValue === "time";
+    this.dayContainerElement.hidden = this._mode === "time";
 
-    this.timeContainerElement.hidden = this.modeValue === "day";
+    this.timeContainerElement.hidden = this._mode === "day";
   }
 
   private updateDisplay(): void {
@@ -384,7 +408,7 @@ export class UmiTimeExplorerElement extends HTMLElement {
 
     this.umiDateElement.textContent = DATE_FORMATTER.format(selectedDate);
 
-    this.umiDisplayElement.setAttribute("value", selectedDate.toISOString());
+    this.umiReadoutElement.setAttribute("value", selectedDate.toISOString());
 
     this.dayValueElement.textContent =
       this.selectedDayOffset === 0
@@ -402,14 +426,18 @@ export class UmiTimeExplorerElement extends HTMLElement {
 
     selected.setUTCDate(selected.getUTCDate() + this.selectedDayOffset);
 
-    selected.setUTCMinutes(selected.getUTCMinutes() + this.selectedUmiOffset * 4);
+    selected.setUTCMinutes(
+      selected.getUTCMinutes() + this.selectedUmiOffset * 4,
+    );
     return selected;
   }
 
   private emitTimeChange(): void {
     this.dispatchEvent(
       new CustomEvent("umi-time-change", {
-        detail: this.selectedDayOffset * 360 + this.selectedUmiOffset,
+        detail: {
+          offset: this.selectedDayOffset * 360 + this.selectedUmiOffset,
+        },
         bubbles: true,
         composed: true,
       }),
@@ -419,6 +447,6 @@ export class UmiTimeExplorerElement extends HTMLElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "umi-time-explorer": UmiTimeExplorerElement;
+    "umi-time-explorer": UmiTimeExplorer;
   }
 }

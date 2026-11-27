@@ -1,19 +1,19 @@
 import { describe, expect, it } from "vitest";
 
 import "./index";
-import { UmiOptionElement } from "./umi-option";
+import { UmiOption } from "./umi-option";
 
-describe("UmiOptionElement", () => {
+describe("UmiOption", () => {
   it("registers the custom element", () => {
     expect(customElements.get("umi-option")).toBe(
-      UmiOptionElement,
+      UmiOption,
     );
   });
 
   it("uses sensible defaults", () => {
     const option = document.createElement(
       "umi-option",
-    ) as UmiOptionElement;
+    ) as UmiOption;
 
     expect(option.value).toBe("");
     expect(option.label).toBe("");
@@ -23,7 +23,7 @@ describe("UmiOptionElement", () => {
   it("reflects value property to attribute", () => {
     const option = document.createElement(
       "umi-option",
-    ) as UmiOptionElement;
+    ) as UmiOption;
 
     option.value = "seconds";
 
@@ -35,7 +35,7 @@ describe("UmiOptionElement", () => {
   it("reflects label property to attribute", () => {
     const option = document.createElement(
       "umi-option",
-    ) as UmiOptionElement;
+    ) as UmiOption;
 
     option.label = "Show Seconds";
 
@@ -47,7 +47,7 @@ describe("UmiOptionElement", () => {
   it("reflects checked property to attribute", () => {
     const option = document.createElement(
       "umi-option",
-    ) as UmiOptionElement;
+    ) as UmiOption;
 
     option.checked = true;
 
@@ -65,7 +65,7 @@ describe("UmiOptionElement", () => {
   it("uses text content as a label fallback", () => {
     const option = document.createElement(
       "umi-option",
-    ) as UmiOptionElement;
+    ) as UmiOption;
 
     option.textContent = "Show Seconds";
 
@@ -75,7 +75,7 @@ describe("UmiOptionElement", () => {
   it("hides itself when connected", () => {
     const option = document.createElement(
       "umi-option",
-    ) as UmiOptionElement;
+    ) as UmiOption;
 
     document.body.append(option);
 

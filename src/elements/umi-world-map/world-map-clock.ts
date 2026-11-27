@@ -28,43 +28,96 @@ const SUN_INDICATOR_OUTSET_RATIO = 4 / 85;
 const HAND_HUB_OVERLAP_RATIO = 0.3;
 const SOLAR_GRADIENT_STEP = 0.5;
 
+/**
+ * Configuration options used when rendering a clock on the world map.
+ */
 export interface WorldMapClockOptions {
+  /** Latitude in decimal degrees. */
   latitude: number;
+
+  /** Longitude in decimal degrees. */
   longitude: number;
+
+  /** Time represented by the clock. */
   date: Date;
 
+  /** Optional clock width in pixels. */
   width?: number;
+
+  /** Optional clock height in pixels. */
   height?: number;
 }
 
+/**
+ * Precomputed dimensions used when rendering a world map clock.
+ *
+ * All measurements are derived from the rendered clock size and are used
+ * to position and draw clock features consistently.
+ */
 export interface ClockGeometry {
+  /** Center x-coordinate of the clock. */
   cx: number;
+
+  /** Center y-coordinate of the clock. */
   cy: number;
 
+  /** Outer radius of the clock face. */
   radius: number;
+
+  /** Radius of the solar ring. */
   solarRadius: number;
+
+  /** Width of the solar ring. */
   solarRingWidth: number;
 
+  /** Height of the noon/midnight indicator triangles. */
   triangleHeight: number;
+
+  /** Half-width of the noon/midnight indicator triangles. */
   triangleHalfWidth: number;
 
+  /** Radius of the center hub. */
   hubRadius: number;
+
+  /** Radius of the inner hub circle. */
   hubInnerRadius: number;
 
+  /** Font size used for dial labels. */
   fontSize: number;
 
+  /** Inner offset of minor tick marks. */
   minorTickInnerOffset: number;
+
+  /** Outer offset of minor tick marks. */
   minorTickOuterOffset: number;
 
+  /** Inner offset of major tick marks. */
   majorTickInnerOffset: number;
+
+  /** Outer offset of major tick marks. */
   majorTickOuterOffset: number;
 
+  /** Distance from the center to dial labels. */
   labelOffset: number;
 
+  /** Inner offset of sunrise and sunset indicators. */
   sunIndicatorInnerOffset: number;
+
+  /** Outer offset of sunrise and sunset indicators. */
   sunIndicatorOuterOffset: number;
 }
 
+/**
+ * Computes the geometric measurements used to render a world map clock
+ * at the specified size.
+ *
+ * The returned dimensions are scaled proportionally and can be reused
+ * by the clock rendering functions to ensure consistent layout.
+ *
+ * @param width Width of the clock in pixels.
+ * @param height Height of the clock in pixels.
+ * @returns Precomputed clock geometry values.
+ */
 export function createGeometry(width: number, height: number): ClockGeometry {
   const size = Math.min(width, height);
 
@@ -94,6 +147,15 @@ export function createGeometry(width: number, height: number): ClockGeometry {
   };
 }
 
+/**
+ * Renders a Umi-Time clock onto a canvas at the specified location and time.
+ *
+ * The rendered clock includes the dial, solar ring, tick marks, labels,
+ * sunrise and sunset indicators, and clock hand.
+ *
+ * @param ctx Canvas rendering context used for drawing.
+ * @param options Clock rendering options including location and time.
+ */
 export function renderWorldMapClock(
   ctx: CanvasRenderingContext2D,
   options: WorldMapClockOptions,
@@ -148,10 +210,27 @@ export function renderWorldMapClock(
   drawSunIndicators(ctx, geometry, sunriseDial, sunsetDial);
 }
 
+/**
+ * Computes the rotation angle that aligns a clock dial with the specified
+ * longitude on the world map.
+ *
+ * @param longitude Longitude in decimal degrees.
+ * @returns Dial rotation angle in degrees.
+ */
 export function computeDialRotation(longitude: number): number {
   return 180 + longitude;
 }
 
+/**
+ * Computes the angle of a sunrise or sunset indicator after applying the
+ * dial rotation for the specified longitude.
+ *
+ * @param umiAngle Sunrise or sunset angle in umi-space, or null when the
+ * corresponding event does not occur.
+ * @param longitude Longitude in decimal degrees.
+ * @returns The rotated indicator angle in degrees, or null if no indicator
+ * should be rendered.
+ */
 export function computeSunIndicatorAngle(
   umiAngle: number | null,
   longitude: number,
@@ -173,6 +252,17 @@ function normalizeAngle(angle: number): number {
   return angle;
 }
 
+/**
+ * Computes the angle of the Umi-Time hand for the specified location and time.
+ *
+ * The returned angle accounts for both longitude and solar conditions so
+ * that the dial reflects the local interpretation of the current Umi-Time.
+ *
+ * @param latitude Latitude in decimal degrees.
+ * @param longitude Longitude in decimal degrees.
+ * @param date Time to evaluate.
+ * @returns Clock-hand angle in degrees.
+ */
 export function computeUmiDialAngle(
   latitude: number,
   longitude: number,
@@ -238,6 +328,15 @@ function drawUmiValue(
   ctx.stroke();
 }
 
+/**
+ * Draws the main Umi-Time dial, including the hand and associated dial
+ * features, using the supplied geometry and Umi-Time value.
+ *
+ * @param ctx Canvas rendering context used for drawing.
+ * @param geometry Precomputed clock geometry.
+ * @param angle Clock-hand angle in degrees.
+ * @param umi Umi-Time value represented by the dial.
+ */
 export function drawUmiDial(
   ctx: CanvasRenderingContext2D,
   geometry: ClockGeometry,
@@ -336,6 +435,19 @@ export function drawUmiDial(
   ctx.restore();
 }
 
+/**
+ * Draws sunrise and sunset indicators on the clock dial.
+ *
+ * The indicators mark the directions of sunrise and sunset relative to
+ * the clock's current orientation.
+ *
+ * @param ctx Canvas rendering context used for drawing.
+ * @param geometry Precomputed clock geometry.
+ * @param sunriseDial Sunrise indicator angle in degrees, or null when no
+ * sunrise occurs.
+ * @param sunsetDial Sunset indicator angle in degrees, or null when no
+ * sunset occurs.
+ */
 export function drawSunIndicators(
   ctx: CanvasRenderingContext2D,
   geometry: ClockGeometry,
@@ -369,6 +481,18 @@ export function drawSunIndicators(
   });
 }
 
+/**
+ * Draws the solar gradient ring for a world map clock.
+ *
+ * The gradient visualizes daylight, twilight, and nighttime conditions
+ * for the specified latitude and solar conditions.
+ *
+ * @param ctx Canvas rendering context used for drawing.
+ * @param geometry Precomputed clock geometry.
+ * @param latitude Latitude in decimal degrees.
+ * @param solarDeclination Solar declination in degrees.
+ * @param equationOfTime Equation of time in minutes.
+ */
 export function drawConicGradient(
   ctx: CanvasRenderingContext2D,
   geometry: ClockGeometry,
@@ -398,6 +522,16 @@ export function drawConicGradient(
   }
 }
 
+/**
+ * Draws the major and minor tick marks around the clock dial.
+ *
+ * @param ctx Canvas rendering context used for drawing.
+ * @param cx Center x-coordinate of the clock.
+ * @param cy Center y-coordinate of the clock.
+ * @param radius Outer radius of the clock face.
+ * @param dialRotationDeg Dial rotation angle in degrees.
+ * @param geometry Precomputed clock geometry.
+ */
 export function drawDialTicks(
   ctx: CanvasRenderingContext2D,
   cx: number,
@@ -447,6 +581,19 @@ export function drawDialTicks(
   }
 }
 
+/**
+ * Draws the numeric labels around the clock dial.
+ *
+ * Labels are positioned according to the dial rotation and precomputed
+ * clock geometry.
+ *
+ * @param ctx Canvas rendering context used for drawing.
+ * @param cx Center x-coordinate of the clock.
+ * @param cy Center y-coordinate of the clock.
+ * @param radius Outer radius of the clock face.
+ * @param dialRotationDeg Dial rotation angle in degrees.
+ * @param geometry Precomputed clock geometry.
+ */
 export function drawDialLabels(
   ctx: CanvasRenderingContext2D,
   cx: number,

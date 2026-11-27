@@ -1,9 +1,7 @@
-import { UmiTimezonesElement } from "./umi-timezones";
+import { UmiTimezones } from "./umi-timezones";
 
-export { UmiTimezonesElement };
+export { UmiTimezones };
 export type { UmiTimezonesAttribute } from "./umi-timezones";
-
-export * from "./world-map-timezones";
 
 const UMI_TIMEZONES_TAG = "umi-timezones";
 
@@ -13,6 +11,6 @@ if (
 ) {
   customElements.define(
     UMI_TIMEZONES_TAG,
-    UmiTimezonesElement,
+    UmiTimezones,
   );
 }

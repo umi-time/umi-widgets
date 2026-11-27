@@ -3,17 +3,17 @@
 import { describe, expect, it } from "vitest";
 
 import "./index";
-import { UmiTimezonesElement } from "./umi-timezones";
+import { UmiTimezones } from "./umi-timezones";
 
-describe("UmiTimezonesElement", () => {
+describe("UmiTimezones", () => {
   it("is registered as a custom element", () => {
-    expect(customElements.get("umi-timezones")).toBe(UmiTimezonesElement);
+    expect(customElements.get("umi-timezones")).toBe(UmiTimezones);
   });
 
   it("defaults src to an empty string", () => {
     const timezones = document.createElement(
       "umi-timezones",
-    ) as UmiTimezonesElement;
+    ) as UmiTimezones;
 
     expect(timezones.src).toBe("");
   });
@@ -21,7 +21,7 @@ describe("UmiTimezonesElement", () => {
   it("updates src property and attribute", () => {
     const timezones = document.createElement(
       "umi-timezones",
-    ) as UmiTimezonesElement;
+    ) as UmiTimezones;
 
     timezones.src = "/data/timezones.json";
 
@@ -32,7 +32,7 @@ describe("UmiTimezonesElement", () => {
   it("updates src from attribute changes", () => {
     const timezones = document.createElement(
       "umi-timezones",
-    ) as UmiTimezonesElement;
+    ) as UmiTimezones;
 
     timezones.setAttribute("src", "/demo/data/timezones.json");
 
@@ -40,13 +40,13 @@ describe("UmiTimezonesElement", () => {
   });
 
   it("observes the src attribute", () => {
-    expect(UmiTimezonesElement.observedAttributes).toContain("src");
+    expect(UmiTimezones.observedAttributes).toContain("src");
   });
 
   it("can be created", () => {
     const timezones = document.createElement("umi-timezones");
 
-    expect(timezones).toBeInstanceOf(UmiTimezonesElement);
+    expect(timezones).toBeInstanceOf(UmiTimezones);
   });
 
   it("does not throw when connected without a src", () => {
@@ -60,7 +60,7 @@ describe("UmiTimezonesElement", () => {
   it("resets src to an empty string when removed", () => {
     const timezones = document.createElement(
       "umi-timezones",
-    ) as UmiTimezonesElement;
+    ) as UmiTimezones;
 
     timezones.setAttribute("src", "/demo/data/timezones.json");
     timezones.removeAttribute("src");

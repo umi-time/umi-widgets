@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { UmiDisplayElement } from "./index";
+import { UmiReadout } from "./index";
 
-describe("<umi-display>", () => {
+describe("<umi-readout>", () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
@@ -12,11 +12,11 @@ describe("<umi-display>", () => {
   });
 
   it("registers the custom element safely", () => {
-    expect(customElements.get("umi-display")).toBe(UmiDisplayElement);
+    expect(customElements.get("umi-readout")).toBe(UmiReadout);
   });
 
   it("renders umi degrees and symbol by default", () => {
-    const el = document.createElement("umi-display");
+    const el = document.createElement("umi-readout");
     // 2026-11-01T09:34:56.000Z => 143:176
     el.setAttribute("value", "2026-11-01T09:34:56.000Z");
     document.body.appendChild(el);
@@ -33,7 +33,7 @@ describe("<umi-display>", () => {
   });
 
   it("includes seconds when the seconds attribute is present", () => {
-    const el = document.createElement("umi-display");
+    const el = document.createElement("umi-readout");
     el.setAttribute("value", "2026-11-01T09:34:56.000Z");
     el.setAttribute("seconds", "");
     document.body.appendChild(el);
@@ -44,7 +44,7 @@ describe("<umi-display>", () => {
   });
 
   it("includes the Φ day-phase suffix when longitude is provided", () => {
-    const el = document.createElement("umi-display");
+    const el = document.createElement("umi-readout");
     // U = 143, lon = -120.64 => (((143 - 120.64) % 360) + 360) % 360 = 22.36 => floor(22.36 / 15) = 1
     el.setAttribute("value", "2026-11-01T09:34:56.000Z");
     el.setAttribute("seconds", "");
@@ -62,7 +62,7 @@ describe("<umi-display>", () => {
   it("ticks live and stops interval on disconnect", () => {
     vi.setSystemTime(new Date("2026-11-01T00:00:00.000Z"));
 
-    const el = document.createElement("umi-display");
+    const el = document.createElement("umi-readout");
     el.setAttribute("live", "");
     el.setAttribute("seconds", "");
     document.body.appendChild(el);
@@ -78,7 +78,7 @@ describe("<umi-display>", () => {
   });
 
   it("renders invalid time for invalid input", () => {
-    const el = document.createElement("umi-display");
+    const el = document.createElement("umi-readout");
 
     el.setAttribute("value", "not-a-time");
     document.body.appendChild(el);
@@ -89,7 +89,7 @@ describe("<umi-display>", () => {
   });
 
   it("updates the datetime attribute", () => {
-    const el = document.createElement("umi-display");
+    const el = document.createElement("umi-readout");
 
     el.setAttribute("value", "2026-11-01T09:34:56.000Z");
     document.body.appendChild(el);
@@ -100,7 +100,7 @@ describe("<umi-display>", () => {
   });
 
   it("removes longitude display when longitude is cleared", () => {
-    const el = document.createElement("umi-display") as UmiDisplayElement;
+    const el = document.createElement("umi-readout") as UmiReadout;
 
     el.setAttribute("value", "2026-11-01T09:34:56.000Z");
     document.body.appendChild(el);
@@ -119,7 +119,7 @@ describe("<umi-display>", () => {
   });
 
   it("updates the interval from the update-interval attribute", () => {
-    const el = document.createElement("umi-display") as UmiDisplayElement;
+    const el = document.createElement("umi-readout") as UmiReadout;
 
     el.setAttribute("update-interval", "1000");
 

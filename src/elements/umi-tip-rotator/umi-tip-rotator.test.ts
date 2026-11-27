@@ -4,10 +4,10 @@ import { describe, expect, it, afterEach, beforeEach, vi } from "vitest";
 
 import "../umi-tip/index";
 import "./index";
-import { UmiTipElement } from "../umi-tip";
-import { UmiTipRotatorElement } from "./index";
+import { UmiTip } from "../umi-tip";
+import { UmiTipRotator } from "./index";
 
-describe("UmiTipRotatorElement", () => {
+describe("UmiTipRotator", () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
@@ -18,13 +18,13 @@ describe("UmiTipRotatorElement", () => {
   });
 
   it("is registered as a custom element", () => {
-    expect(customElements.get("umi-tip-rotator")).toBe(UmiTipRotatorElement);
+    expect(customElements.get("umi-tip-rotator")).toBe(UmiTipRotator);
   });
 
   it("defaults interval to 12000ms", () => {
     const rotator = document.createElement(
       "umi-tip-rotator",
-    ) as UmiTipRotatorElement;
+    ) as UmiTipRotator;
 
     expect(rotator.interval).toBe(12000);
   });
@@ -32,7 +32,7 @@ describe("UmiTipRotatorElement", () => {
   it("updates interval property and attribute", () => {
     const rotator = document.createElement(
       "umi-tip-rotator",
-    ) as UmiTipRotatorElement;
+    ) as UmiTipRotator;
 
     rotator.interval = 5000;
 
@@ -43,7 +43,7 @@ describe("UmiTipRotatorElement", () => {
   it("reads interval from attribute", () => {
     const rotator = document.createElement(
       "umi-tip-rotator",
-    ) as UmiTipRotatorElement;
+    ) as UmiTipRotator;
 
     rotator.setAttribute("interval", "7000");
 
@@ -53,9 +53,9 @@ describe("UmiTipRotatorElement", () => {
   it("renders the first tip when connected", async () => {
     const rotator = document.createElement(
       "umi-tip-rotator",
-    ) as UmiTipRotatorElement;
+    ) as UmiTipRotator;
 
-    const tip = document.createElement("umi-tip") as UmiTipElement;
+    const tip = document.createElement("umi-tip") as UmiTip;
 
     tip.focusOn = "Notice the dial.";
     tip.explanation = "It rotates with longitude.";
@@ -82,7 +82,7 @@ describe("UmiTipRotatorElement", () => {
   it("renders empty content when no tips are present", async () => {
     const rotator = document.createElement(
       "umi-tip-rotator",
-    ) as UmiTipRotatorElement;
+    ) as UmiTipRotator;
 
     document.body.append(rotator);
 
@@ -104,14 +104,14 @@ describe("UmiTipRotatorElement", () => {
   it("supports multiple tips", async () => {
     const rotator = document.createElement(
       "umi-tip-rotator",
-    ) as UmiTipRotatorElement;
+    ) as UmiTipRotator;
 
-    const tip1 = document.createElement("umi-tip") as UmiTipElement;
+    const tip1 = document.createElement("umi-tip") as UmiTip;
 
     tip1.focusOn = "First";
     tip1.explanation = "First explanation";
 
-    const tip2 = document.createElement("umi-tip") as UmiTipElement;
+    const tip2 = document.createElement("umi-tip") as UmiTip;
 
     tip2.focusOn = "Second";
     tip2.explanation = "Second explanation";
@@ -138,7 +138,7 @@ describe("UmiTipRotatorElement", () => {
   it("rotates to the next tip after the interval", async () => {
     const rotator = document.createElement(
       "umi-tip-rotator",
-    ) as UmiTipRotatorElement;
+    ) as UmiTipRotator;
 
     rotator.interval = 1000;
     rotator.tipDelay = 0;
@@ -171,7 +171,7 @@ describe("UmiTipRotatorElement", () => {
   it("applies dark mode styling", async () => {
     const rotator = document.createElement(
       "umi-tip-rotator",
-    ) as UmiTipRotatorElement;
+    ) as UmiTipRotator;
 
     rotator.dark = true;
 

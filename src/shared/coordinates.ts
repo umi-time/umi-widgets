@@ -1,12 +1,16 @@
+/**
+ * Valid geographic coordinate limits expressed in decimal degrees.
+ */
 export const MIN_LATITUDE = -90;
 export const MAX_LATITUDE = 90;
-
 export const MIN_LONGITUDE = -180;
 export const MAX_LONGITUDE = 180;
 
 /**
- * Clamps a latitude to the valid range [-90, 90].
- * Returns null for non-finite values.
+ * Clamps a latitude value to the valid geographic range.
+ *
+ * @param lat Latitude in decimal degrees.
+ * @returns The clamped latitude, or null if the value is not finite.
  */
 export function clampLatitude(lat: number): number | null {
   if (!Number.isFinite(lat)) {
@@ -17,8 +21,10 @@ export function clampLatitude(lat: number): number | null {
 }
 
 /**
- * Clamps a longitude to the valid range [-180, 180].
- * Returns null for non-finite values.
+ * Clamps a longitude value to the valid geographic range.
+ *
+ * @param lon Longitude in decimal degrees.
+ * @returns The clamped longitude, or null if the value is not finite.
  */
 export function clampLongitude(lon: number): number | null {
   if (!Number.isFinite(lon)) {

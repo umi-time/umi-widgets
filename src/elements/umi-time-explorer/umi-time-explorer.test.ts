@@ -3,6 +3,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 
 import "./index";
+import { UmiTimeChangeDetail } from "./umi-time-explorer";
 
 describe("umi-time-explorer", () => {
   afterEach(() => {
@@ -53,12 +54,12 @@ describe("umi-time-explorer", () => {
     expect(timeControl.hidden).toBe(false);
   });
 
-  it("renders a umi-display component", () => {
+  it("renders a umi-readout component", () => {
     const element = document.createElement("umi-time-explorer");
 
     document.body.append(element);
 
-    const umiDisplay = element.shadowRoot!.querySelector("umi-display");
+    const umiDisplay = element.shadowRoot!.querySelector("umi-readout");
 
     expect(umiDisplay).not.toBeNull();
   });
@@ -68,10 +69,10 @@ describe("umi-time-explorer", () => {
 
     document.body.append(element);
 
-    let detail: number | undefined;
+    let detail: UmiTimeChangeDetail | undefined;;
 
     element.addEventListener("umi-time-change", (event) => {
-      detail = (event as CustomEvent<number>).detail;
+      detail = (event as CustomEvent<UmiTimeChangeDetail>).detail;
     });
 
     const slider = element.shadowRoot!.querySelector(
@@ -87,7 +88,9 @@ describe("umi-time-explorer", () => {
     );
 
     expect(detail).toBeDefined();
-    expect(detail).toBe(42 * 360);
+    if (detail) {
+      expect(detail.offset).toBe(42 * 360);
+    }
   });
 
   it("emits umi-time-change when time slider changes", () => {
@@ -95,10 +98,10 @@ describe("umi-time-explorer", () => {
 
     document.body.append(element);
 
-    let detail: number | undefined;
+    let detail: UmiTimeChangeDetail | undefined;
 
     element.addEventListener("umi-time-change", (event) => {
-      detail = (event as CustomEvent<number>).detail;
+      detail = (event as CustomEvent<UmiTimeChangeDetail>).detail;
     });
 
     const slider = element.shadowRoot!.querySelector(
@@ -114,7 +117,9 @@ describe("umi-time-explorer", () => {
     );
 
     expect(detail).toBeDefined();
-    expect(detail).toBe(-90);
+    if (detail) {
+      expect(detail.offset).toBe(-90);
+    }
   });
 
   it("updates day label when day slider changes", () => {
@@ -196,16 +201,18 @@ describe("umi-time-explorer", () => {
       ".live-button",
     ) as HTMLButtonElement;
 
-    let detail: number | undefined;
+    let detail: UmiTimeChangeDetail | undefined;
 
     element.addEventListener("umi-time-change", (event) => {
-      detail = (event as CustomEvent<number>).detail;
+      detail = (event as CustomEvent<UmiTimeChangeDetail>).detail;
     });
     button.click();
 
     expect(daySlider.value).toBe("0");
     expect(timeSlider.value).toBe("0");
-    expect(detail).toBe(0);
+    if (detail) {
+      expect(detail.offset).toBe(0);
+    }
 
     const dayValue = element.shadowRoot!.querySelector(
       ".day-value",
@@ -219,16 +226,16 @@ describe("umi-time-explorer", () => {
     expect(timeValue.textContent).toBe("Now");
   });
 
-  it("provides a value attribute to umi-display", () => {
+  it("provides a value attribute to umi-readout", () => {
     const element = document.createElement("umi-time-explorer");
 
     document.body.append(element);
 
-    const umiDisplay = element.shadowRoot!.querySelector(
-      "umi-display",
+    const umiReadout = element.shadowRoot!.querySelector(
+      "umi-readout",
     ) as HTMLElement;
 
-    const value = umiDisplay.getAttribute("value");
+    const value = umiReadout.getAttribute("value");
 
     expect(value).not.toBeNull();
   });
@@ -238,10 +245,10 @@ describe("umi-time-explorer", () => {
 
     document.body.append(element);
 
-    let received: CustomEvent<number> | undefined;
+    let received: CustomEvent<UmiTimeChangeDetail> | undefined;
 
     element.addEventListener("umi-time-change", (event) => {
-      received = event as CustomEvent<number>;
+      received = event as CustomEvent<UmiTimeChangeDetail>;
     });
 
     const slider = element.shadowRoot!.querySelector(

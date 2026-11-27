@@ -129,10 +129,10 @@
     </header>
 
     <main class="gallery">
-      <!-- umi-time -->
+      <!-- umi-timestamp -->
 
       <section class="component-card">
-        <h2>&lt;umi-time&gt;</h2>
+        <h2>&lt;umi-timestamp&gt;</h2>
 
         <p class="description">
           Produces canonical Umi-Time specification strings suitable for machine
@@ -141,27 +141,27 @@
 
         <div class="example-row">
           <div class="example">
-            <umi-time live format="Uuuu:sss"></umi-time>
+            <umi-timestamp live format="Uuuu:sss"></umi-timestamp>
             <label>Live canonical time</label>
           </div>
 
           <div class="example">
-            <umi-time
+            <umi-timestamp
               value="2026-11-01T09:34:56Z"
               format="yyyy-MM-ddUuuu:sssG24+"
               longitude="-120.64"
             >
-            </umi-time>
+            </umi-timestamp>
 
             <label>Formatted specification</label>
           </div>
         </div>
       </section>
 
-      <!-- umi-display -->
+      <!-- umi-readout -->
 
       <section class="component-card">
-        <h2>&lt;umi-display&gt;</h2>
+        <h2>&lt;umi-readout&gt;</h2>
 
         <p class="description">
           Human-friendly Umi-Time readouts for user interfaces.
@@ -169,22 +169,22 @@
 
         <div class="example-row">
           <div class="example">
-            <umi-display live></umi-display>
+            <umi-readout live></umi-readout>
             <label>Umi only</label>
           </div>
 
           <div class="example">
-            <umi-display live seconds></umi-display>
+            <umi-readout live seconds></umi-readout>
             <label>Umi + seconds</label>
           </div>
 
           <div class="example">
-            <umi-display live longitude="-120.64"></umi-display>
+            <umi-readout live longitude="-120.64"></umi-readout>
             <label>Umi + phase</label>
           </div>
 
           <div class="example">
-            <umi-display live seconds longitude="-120.64"></umi-display>
+            <umi-readout live seconds longitude="-120.64"></umi-readout>
             <label>Full display</label>
           </div>
         </div>
@@ -290,8 +290,6 @@
           show-cursor-clock
           show-grid-overlay
         >
-          <umi-timezones></umi-timezones>
-
           <umi-location
             label="Pismo Beach"
             latitude="35.14"

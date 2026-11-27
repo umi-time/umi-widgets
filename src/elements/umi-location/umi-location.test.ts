@@ -3,17 +3,17 @@
 import { describe, expect, it, vi } from "vitest";
 
 import "./index";
-import { UmiLocationElement } from "./umi-location";
+import { UmiLocation } from "./umi-location";
 
-describe("UmiLocationElement", () => {
+describe("UmiLocation", () => {
   it("registers the custom element", () => {
-    expect(customElements.get("umi-location")).toBe(UmiLocationElement);
+    expect(customElements.get("umi-location")).toBe(UmiLocation);
   });
 
   it("uses sensible defaults", () => {
     const location = document.createElement(
       "umi-location",
-    ) as UmiLocationElement;
+    ) as UmiLocation;
 
     expect(location.label).toBe("");
     expect(location.latitude).toBe(0);
@@ -24,7 +24,7 @@ describe("UmiLocationElement", () => {
   it("reads label attribute", () => {
     const location = document.createElement(
       "umi-location",
-    ) as UmiLocationElement;
+    ) as UmiLocation;
 
     location.setAttribute("label", "Tokyo");
 
@@ -34,7 +34,7 @@ describe("UmiLocationElement", () => {
   it("reads latitude attribute", () => {
     const location = document.createElement(
       "umi-location",
-    ) as UmiLocationElement;
+    ) as UmiLocation;
 
     location.setAttribute("latitude", "35.6764");
 
@@ -44,7 +44,7 @@ describe("UmiLocationElement", () => {
   it("reads longitude attribute", () => {
     const location = document.createElement(
       "umi-location",
-    ) as UmiLocationElement;
+    ) as UmiLocation;
 
     location.setAttribute("longitude", "139.65");
 
@@ -54,7 +54,7 @@ describe("UmiLocationElement", () => {
   it("reads color attribute", () => {
     const location = document.createElement(
       "umi-location",
-    ) as UmiLocationElement;
+    ) as UmiLocation;
 
     location.setAttribute("color", "#ff0000");
 
@@ -64,7 +64,7 @@ describe("UmiLocationElement", () => {
   it("updates label through property setter", () => {
     const location = document.createElement(
       "umi-location",
-    ) as UmiLocationElement;
+    ) as UmiLocation;
 
     location.label = "London";
 
@@ -75,7 +75,7 @@ describe("UmiLocationElement", () => {
   it("updates latitude through property setter", () => {
     const location = document.createElement(
       "umi-location",
-    ) as UmiLocationElement;
+    ) as UmiLocation;
 
     location.latitude = 51.5072;
 
@@ -86,7 +86,7 @@ describe("UmiLocationElement", () => {
   it("updates longitude through property setter", () => {
     const location = document.createElement(
       "umi-location",
-    ) as UmiLocationElement;
+    ) as UmiLocation;
 
     location.longitude = -0.1276;
 
@@ -97,7 +97,7 @@ describe("UmiLocationElement", () => {
   it("updates color through property setter", () => {
     const location = document.createElement(
       "umi-location",
-    ) as UmiLocationElement;
+    ) as UmiLocation;
 
     location.color = "#00ff00";
 
@@ -108,7 +108,7 @@ describe("UmiLocationElement", () => {
   it("clamps latitude values above the maximum", () => {
     const location = document.createElement(
       "umi-location",
-    ) as UmiLocationElement;
+    ) as UmiLocation;
 
     location.setAttribute("latitude", "999");
 
@@ -118,7 +118,7 @@ describe("UmiLocationElement", () => {
   it("clamps latitude values below the minimum", () => {
     const location = document.createElement(
       "umi-location",
-    ) as UmiLocationElement;
+    ) as UmiLocation;
 
     location.setAttribute("latitude", "-999");
 
@@ -128,7 +128,7 @@ describe("UmiLocationElement", () => {
   it("ignores invalid latitude values", () => {
     const location = document.createElement(
       "umi-location",
-    ) as UmiLocationElement;
+    ) as UmiLocation;
 
     location.latitude = 35;
     location.setAttribute("latitude", "not-a-number");
@@ -139,7 +139,7 @@ describe("UmiLocationElement", () => {
   it("ignores invalid longitude values", () => {
     const location = document.createElement(
       "umi-location",
-    ) as UmiLocationElement;
+    ) as UmiLocation;
 
     location.longitude = 100;
     location.setAttribute("longitude", "not-a-number");
@@ -150,7 +150,7 @@ describe("UmiLocationElement", () => {
   it("dispatches a change event when label changes", () => {
     const location = document.createElement(
       "umi-location",
-    ) as UmiLocationElement;
+    ) as UmiLocation;
 
     const listener = vi.fn();
 
@@ -163,7 +163,7 @@ describe("UmiLocationElement", () => {
   it("dispatches a change event when latitude changes", () => {
     const location = document.createElement(
       "umi-location",
-    ) as UmiLocationElement;
+    ) as UmiLocation;
 
     const listener = vi.fn();
 
@@ -176,7 +176,7 @@ describe("UmiLocationElement", () => {
   it("dispatches a change event when longitude changes", () => {
     const location = document.createElement(
       "umi-location",
-    ) as UmiLocationElement;
+    ) as UmiLocation;
 
     const listener = vi.fn();
 
@@ -189,7 +189,7 @@ describe("UmiLocationElement", () => {
   it("dispatches a bubbling composed event", () => {
     const location = document.createElement(
       "umi-location",
-    ) as UmiLocationElement;
+    ) as UmiLocation;
 
     let event: Event | null = null;
 
@@ -207,7 +207,7 @@ describe("UmiLocationElement", () => {
   it("reads timezone attribute", () => {
     const location = document.createElement(
       "umi-location",
-    ) as UmiLocationElement;
+    ) as UmiLocation;
 
     location.setAttribute("timezone", "America/Los_Angeles");
 
@@ -217,7 +217,7 @@ describe("UmiLocationElement", () => {
   it("updates timezone through property setter", () => {
     const location = document.createElement(
       "umi-location",
-    ) as UmiLocationElement;
+    ) as UmiLocation;
 
     location.timezone = "America/Los_Angeles";
 

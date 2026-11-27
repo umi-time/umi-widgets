@@ -1,7 +1,10 @@
 // src/elements/umi-tip-rotator/umi-tip-rotator.ts
 
-import { UmiTipElement } from "../umi-tip/umi-tip";
+import { UmiTip } from "../umi-tip/umi-tip";
 
+/**
+ * Supported attributes for the <umi-tip-rotator> element.
+ */
 export type UmiTipRotatorAttribute =
   | "interval"
   | "tip-delay"
@@ -9,7 +12,13 @@ export type UmiTipRotatorAttribute =
   | "storage-key"
   | "dark";
 
-export class UmiTipRotatorElement extends HTMLElement {
+/**
+ * Displays a rotating sequence of tips defined by child <umi-tip> elements.
+ *
+ * The rotation timing, appearance, and persistence behavior can be
+ * configured through element attributes.
+ */
+export class UmiTipRotator extends HTMLElement {
   static get observedAttributes(): readonly UmiTipRotatorAttribute[] {
     return ["interval", "tip-delay", "detail-delay", "storage-key", "dark"];
   }
@@ -34,11 +43,12 @@ export class UmiTipRotatorElement extends HTMLElement {
     this.shadowRootRef = this.attachShadow({ mode: "open" });
   }
 
-  get interval(): number {
+  /** Rotation interval in milliseconds between tips. */
+  public get interval(): number {
     return this._interval;
   }
 
-  set interval(value: number) {
+  public set interval(value: number) {
     const clamped = Math.max(1000, value);
 
     this._interval = clamped;
@@ -52,11 +62,12 @@ export class UmiTipRotatorElement extends HTMLElement {
     this.restartTimer();
   }
 
-  get tipDelay(): number {
+  /** Delay before showing the tip focus text. */
+  public get tipDelay(): number {
     return this._tipDelay;
   }
 
-  set tipDelay(value: number) {
+  public set tipDelay(value: number) {
     const clamped = Math.max(0, value);
 
     this._tipDelay = clamped;
@@ -68,11 +79,12 @@ export class UmiTipRotatorElement extends HTMLElement {
     }
   }
 
-  get detailDelay(): number {
+  /** Delay before showing the explanation text. */
+  public get detailDelay(): number {
     return this._detailDelay;
   }
 
-  set detailDelay(value: number) {
+  public set detailDelay(value: number) {
     const clamped = Math.max(0, value);
 
     this._detailDelay = clamped;
@@ -84,31 +96,33 @@ export class UmiTipRotatorElement extends HTMLElement {
     }
   }
 
-  get storageKey(): string | null {
+  /** Local storage key used to persist the current tip index. */
+  public get storageKey(): string | null {
     return this._storageKey;
   }
 
-  set storageKey(value: string | null) {
+  public set storageKey(value: string | null) {
     this._storageKey = value;
 
     if (value === null || value === "") {
-      this.removeAttribute("storage-key");
+      if (this.hasAttribute("storage-key")) {
+        this.removeAttribute("storage-key");
+      }
     } else if (this.getAttribute("storage-key") !== value) {
       this.setAttribute("storage-key", value);
     }
   }
 
-  get dark(): boolean {
+  /** Enables the dark color scheme when true. */
+  public get dark(): boolean {
     return this._dark;
   }
 
-  set dark(value: boolean) {
+  public set dark(value: boolean) {
     this._dark = value;
 
-    if (value) {
-      this.setAttribute("dark", "");
-    } else {
-      this.removeAttribute("dark");
+    if (this.hasAttribute("dark") !== value) {
+      this.toggleAttribute("dark", value);
     }
   }
 
@@ -128,7 +142,7 @@ export class UmiTipRotatorElement extends HTMLElement {
     _oldValue: string | null,
     value: string | null,
   ): void {
-    switch (name) {
+    switch (name as UmiTipRotatorAttribute) {
       case "interval": {
         const parsed = Number(value);
 
@@ -171,8 +185,8 @@ export class UmiTipRotatorElement extends HTMLElement {
     }
   }
 
-  private getTips(): UmiTipElement[] {
-    return Array.from(this.querySelectorAll("umi-tip")) as UmiTipElement[];
+  private getTips(): UmiTip[] {
+    return Array.from(this.querySelectorAll("umi-tip")) as UmiTip[];
   }
 
   private loadCurrentIndex(): void {
@@ -236,7 +250,7 @@ export class UmiTipRotatorElement extends HTMLElement {
     this.showTip(tip);
   }
 
-  private showTip(tip: UmiTipElement): void {
+  private showTip(tip: UmiTip): void {
     if (this.focusTimer) {
       clearTimeout(this.focusTimer);
       this.focusTimer = null;
@@ -409,6 +423,6 @@ export class UmiTipRotatorElement extends HTMLElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "umi-tip-rotator": UmiTipRotatorElement;
+    "umi-tip-rotator": UmiTipRotator;
   }
 }

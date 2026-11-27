@@ -3,22 +3,22 @@
 import { describe, expect, it } from "vitest";
 
 import "./index";
-import { UmiTipElement } from "./umi-tip";
+import { UmiTip } from "./umi-tip";
 
-describe("UmiTipElement", () => {
+describe("UmiTip", () => {
   it("is registered as a custom element", () => {
-    expect(customElements.get("umi-tip")).toBe(UmiTipElement);
+    expect(customElements.get("umi-tip")).toBe(UmiTip);
   });
 
   it("initializes with default values", () => {
-    const tip = document.createElement("umi-tip") as UmiTipElement;
+    const tip = document.createElement("umi-tip") as UmiTip;
 
     expect(tip.focusOn).toBe("");
     expect(tip.explanation).toBe("");
   });
 
   it("updates focusOn property and attribute", () => {
-    const tip = document.createElement("umi-tip") as UmiTipElement;
+    const tip = document.createElement("umi-tip") as UmiTip;
 
     tip.focusOn = "Notice the dial.";
 
@@ -27,7 +27,7 @@ describe("UmiTipElement", () => {
   });
 
   it("updates explanation property and attribute", () => {
-    const tip = document.createElement("umi-tip") as UmiTipElement;
+    const tip = document.createElement("umi-tip") as UmiTip;
 
     tip.explanation = "It rotates with longitude.";
 
@@ -36,7 +36,7 @@ describe("UmiTipElement", () => {
   });
 
   it("updates properties from attributes", () => {
-    const tip = document.createElement("umi-tip") as UmiTipElement;
+    const tip = document.createElement("umi-tip") as UmiTip;
 
     tip.setAttribute("focus-on", "Notice the bezel.");
     tip.setAttribute(
@@ -51,7 +51,7 @@ describe("UmiTipElement", () => {
   });
 
   it("dispatches umi-tip-change when focusOn changes", () => {
-    const tip = document.createElement("umi-tip") as UmiTipElement;
+    const tip = document.createElement("umi-tip") as UmiTip;
 
     let count = 0;
 
@@ -65,7 +65,7 @@ describe("UmiTipElement", () => {
   });
 
   it("dispatches umi-tip-change when explanation changes", () => {
-    const tip = document.createElement("umi-tip") as UmiTipElement;
+    const tip = document.createElement("umi-tip") as UmiTip;
 
     let count = 0;
 
@@ -79,7 +79,7 @@ describe("UmiTipElement", () => {
   });
 
   it("dispatches a bubbling composed event", () => {
-    const tip = document.createElement("umi-tip") as UmiTipElement;
+    const tip = document.createElement("umi-tip") as UmiTip;
 
     let event: Event | null = null;
 

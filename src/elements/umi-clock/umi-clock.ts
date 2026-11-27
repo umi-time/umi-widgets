@@ -5,6 +5,9 @@ import { clampLatitude, clampLongitude } from "../../shared/coordinates";
 const SVG_NS = "http://www.w3.org/2000/svg" as const;
 const UMI_SYMBOL_PATH = "M 153.7 39.4 A 76 76 0 1 1 46.3 39.4";
 
+/**
+ * Supported attributes for the <umi-clock> element.
+ */
 export type UmiClockAttribute =
   | "latitude"
   | "longitude"
@@ -32,21 +35,25 @@ function createSvgElement<K extends keyof SVGElementTagNameMap>(
   return el;
 }
 
-// UmiClock Web Component
+/**
+ * Displays a Umi-Time clock for a specific location, timezone, or offset.
+ *
+ * The clock can render local solar context based on latitude and longitude
+ * and supports both light and dark display modes.
+ */
 export class UmiClock extends HTMLElement {
   static get observedAttributes(): readonly UmiClockAttribute[] {
     return ["latitude", "longitude", "timezone", "offset", "size", "dark"];
   }
 
-  // Public state
-  public latitude = 0;
-  public longitude = 0;
-  public size = "900px";
-  public darkMode = false;
-  public timezone: string = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  public offset = 0;
-
   // Internal state & caches
+  private _latitude = 0;
+  private _longitude = 0;
+  private _size = "900px";
+  private _dark = false;
+  private _timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  private _offset = 0;
+
   private readonly shadow: ShadowRoot;
   private readonly root: HTMLDivElement;
   private readonly solarRing: HTMLDivElement;
@@ -75,6 +82,80 @@ export class UmiClock extends HTMLElement {
   private currentSegment: number | null = null;
   private timer: number | null = null;
 
+  /** Latitude in decimal degrees used for solar calculations. */
+  public get latitude(): number {
+    return this._latitude;
+  }
+
+  public set latitude(value: number) {
+    const latitudeValue = String(value);
+    if (this.getAttribute("latitude") !== latitudeValue) {
+      this.setAttribute("latitude", latitudeValue);
+    }
+  }
+
+  /** Longitude in decimal degrees used for local interpretation. */
+  public get longitude(): number {
+    return this._longitude;
+  }
+
+  public set longitude(value: number) {
+    const longitudeValue = String(value);
+    if (this.getAttribute("longitude") !== longitudeValue) {
+      this.setAttribute("longitude", longitudeValue);
+    }
+  }
+
+  /** CSS size of the rendered clock. */
+  public get size(): string {
+    return this._size;
+  }
+
+  public set size(value: string) {
+    if (this.getAttribute("size") !== value) {
+      this.setAttribute("size", value);
+    }
+  }
+
+  /** Enables the dark color scheme when true. */
+  public get dark(): boolean {
+    return this._dark;
+  }
+
+  public set dark(value: boolean) {
+    if (this.hasAttribute("dark") !== value) {
+      this.toggleAttribute("dark", value);
+    }
+  }
+
+  /** IANA timezone identifier used by the clock. */
+  public get timezone(): string {
+    return this._timezone;
+  }
+
+  public set timezone(value: string) {
+    if (this.getAttribute("timezone") !== value) {
+      this.setAttribute("timezone", value);
+    }
+  }
+
+  /**
+   * Umi offset applied to the displayed time.
+   *
+   * Typically used when exploring dates and times other than the current
+   * moment.
+   */
+  public get offset(): number {
+    return this._offset;
+  }
+
+  public set offset(value: number) {
+    const offsetValue = String(value);
+    if (this.getAttribute("offset") !== offsetValue) {
+      this.setAttribute("offset", offsetValue);
+    }
+  }
+
   constructor() {
     super();
 
@@ -83,8 +164,8 @@ export class UmiClock extends HTMLElement {
     // Root container
     this.root = document.createElement("div");
     this.root.className = "umi-clock-root";
-    this.root.style.width = this.size;
-    this.root.style.height = this.size;
+    this.root.style.width = this._size;
+    this.root.style.height = this._size;
     this.root.style.position = "relative";
 
     // Fixed solar ring bezel
@@ -113,16 +194,16 @@ export class UmiClock extends HTMLElement {
     this.update = this.update.bind(this);
   }
 
-  get outerRadius(): number {
+  private get outerRadius(): number {
     return 27.5;
   }
 
-  get dialBackground(): string {
-    return this.darkMode ? "#080808" : "#f7f7f7";
+  private get dialBackground(): string {
+    return this._dark ? "#080808" : "#f7f7f7";
   }
 
-  get foregroundColor(): string {
-    return this.darkMode ? "#fff" : "#000";
+  private get foregroundColor(): string {
+    return this._dark ? "#fff" : "#000";
   }
 
   private makeGroup(id: string): SVGGElement {
@@ -159,35 +240,35 @@ export class UmiClock extends HTMLElement {
         if (newValue !== null) this.setClampedLongitude(parseFloat(newValue));
         break;
       case "timezone":
-        this.timezone =
+        this._timezone =
           newValue || Intl.DateTimeFormat().resolvedOptions().timeZone;
         break;
       case "offset": {
         const parsed = parseFloat(newValue ?? "");
-        this.offset = Number.isFinite(parsed) ? parsed : 0;
+        this._offset = Number.isFinite(parsed) ? parsed : 0;
         this.lastSolarMinute = null;
         break;
       }
       case "size":
-        this.size = newValue || "900px";
-        this.root.style.width = this.size;
-        this.root.style.height = this.size;
+        this._size = newValue || "900px";
+        this.root.style.width = this._size;
+        this.root.style.height = this._size;
         this.resizeSolarRing();
         break;
       case "dark":
-        this.darkMode = newValue === "true" || newValue === "";
+        this._dark = newValue === "true" || newValue === "";
         this.updateDarkMode();
         break;
     }
 
-    this.refresh();
+    this.update();
   }
 
   private resizeSolarRing(): void {
-    this.solarRing.style.width = this.size;
-    this.solarRing.style.height = this.size;
+    this.solarRing.style.width = this._size;
+    this.solarRing.style.height = this._size;
 
-    const sizeValue = parseFloat(this.size);
+    const sizeValue = parseFloat(this._size);
     if (!Number.isFinite(sizeValue)) return;
 
     const minRadius = (sizeValue / 2) * (this.outerRadius / 36);
@@ -198,44 +279,52 @@ export class UmiClock extends HTMLElement {
     this.solarRing.style.webkitMask = maskValue;
   }
 
-  // ---------------------------------------------------------------------------
-  // Public API
-  // ---------------------------------------------------------------------------
-  public refresh(): void {
-    this.update();
-  }
-
+  /**
+   * Updates the clock's geographic location.
+   *
+   * @param lat Latitude in decimal degrees.
+   * @param lon Longitude in decimal degrees.
+   */
   public setLocation(lat: number, lon: number): void {
     this.setClampedLatitude(lat);
     this.setClampedLongitude(lon);
-    this.setAttribute("latitude", String(this.latitude));
-    this.setAttribute("longitude", String(this.longitude));
+    this.setAttribute("latitude", String(this._latitude));
+    this.setAttribute("longitude", String(this._longitude));
     this.lastSolarMinute = null;
-    this.refresh();
+    this.update();
   }
 
+  /**
+   * Updates the rendered size of the clock.
+   *
+   * @param size CSS size value such as "400px" or "50vh".
+   */
   public setSize(size: string): void {
-    this.size = size;
+    this._size = size;
     this.setAttribute("size", size);
   }
 
   private setClampedLatitude(lat: number): void {
     const clamped = clampLatitude(lat);
     if (clamped === null) return;
-    this.latitude = clamped;
+    this._latitude = clamped;
     this.lastSolarMinute = null;
   }
 
   private setClampedLongitude(lon: number): void {
     const clamped = clampLongitude(lon);
     if (clamped === null) return;
-    this.longitude = clamped;
+    this._longitude = clamped;
     this.lastSolarMinute = null;
   }
 
   // ---------------------------------------------------------------------------
   // Update loop control
   // ---------------------------------------------------------------------------
+
+  /**
+   * Starts live clock updates.
+   */
   public start(): void {
     this.stop();
     const tick = (): void => {
@@ -245,15 +334,14 @@ export class UmiClock extends HTMLElement {
     this.timer = requestAnimationFrame(tick);
   }
 
+  /**
+   * Stops live clock updates.
+   */
   public stop(): void {
     if (this.timer !== null) {
       cancelAnimationFrame(this.timer);
       this.timer = null;
     }
-  }
-
-  public restart(): void {
-    this.start();
   }
 
   // ---------------------------------------------------------------------------
@@ -770,8 +858,11 @@ export class UmiClock extends HTMLElement {
     this.labels.querySelectorAll("path").forEach((umiSymbol) => {
       umiSymbol.setAttribute("stroke", this.foregroundColor);
     });
-    this.secondHandLine.setAttribute("stroke", this.darkMode ? "#cccccc" : "#666666");
-    if (this.darkMode) {
+    this.secondHandLine.setAttribute(
+      "stroke",
+      this._dark ? "#cccccc" : "#666666",
+    );
+    if (this._dark) {
       this.bezel.classList.add("dark-mode");
     } else {
       this.bezel.classList.remove("dark-mode");
@@ -784,20 +875,20 @@ export class UmiClock extends HTMLElement {
   private update(): void {
     const currentTime = new Date();
 
-    if (this.offset != 0) {
-      currentTime.setUTCMinutes(currentTime.getUTCMinutes() + this.offset * 4);
+    if (this._offset != 0) {
+      currentTime.setUTCMinutes(currentTime.getUTCMinutes() + this._offset * 4);
     }
 
     const umiObj = new UmiTime(
       currentTime,
-      { value: this.latitude, uncertainty: 0 },
-      { value: this.longitude, uncertainty: 0 },
+      { value: this._latitude, uncertainty: 0 },
+      { value: this._longitude, uncertainty: 0 },
     );
     const umi = umiObj.umi;
     const umiSec = umiObj.second + umiObj.millisecond / 1000;
-    const dialRotation = 180 + this.longitude;
+    const dialRotation = 180 + this._longitude;
 
-    if (this.lastLongitude !== this.longitude) {
+    if (this.lastLongitude !== this._longitude) {
       const transform = `translate(36,36) rotate(${dialRotation})`;
 
       this.dial.setAttribute("transform", transform);
@@ -809,7 +900,7 @@ export class UmiClock extends HTMLElement {
     this.smallHandGroup.setAttribute("transform", `rotate(${umiSec * 1.5})`);
 
     // Day segments
-    const bezelAngle = (((umi + this.longitude) % 360) + 360) % 360;
+    const bezelAngle = (((umi + this._longitude) % 360) + 360) % 360;
     const activeSegment = Math.floor(bezelAngle / 15);
     if (activeSegment !== this.currentSegment) {
       if (this.currentSegment !== null) {
@@ -821,8 +912,8 @@ export class UmiClock extends HTMLElement {
 
     // Solar geometry (cached per minute)
     const { gradient, sunriseDial, sunsetDial } = this.computeSunAngles(
-      this.latitude,
-      this.longitude,
+      this._latitude,
+      this._longitude,
       currentTime,
     );
 
@@ -830,8 +921,8 @@ export class UmiClock extends HTMLElement {
     this.drawSunIndicators(sunriseDial, sunsetDial);
     this.updateDigitalDisplay(dialRotation, umi, umiSec, currentTime);
 
-    this.lastLatitude = this.latitude;
-    this.lastLongitude = this.longitude;
+    this.lastLatitude = this._latitude;
+    this.lastLongitude = this._longitude;
   }
 
   // ---------------------------------------------------------------------------
@@ -977,7 +1068,7 @@ export class UmiClock extends HTMLElement {
 
   private formatCivilTime(date: Date): string {
     const formatter = new Intl.DateTimeFormat("en-US", {
-      timeZone: this.timezone,
+      timeZone: this._timezone,
       hour: "numeric",
       minute: "2-digit",
       second: "2-digit",

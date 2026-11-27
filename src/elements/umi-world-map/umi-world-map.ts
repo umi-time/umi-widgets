@@ -3,10 +3,10 @@ import defaultMapSvg from "./assets/mercator.svg";
 
 const DEFAULT_MAP_KEY = "__default__";
 
-import { UmiTime as UmiTimeCore } from "umi-time";
+import { UmiTime } from "umi-time";
 import "../umi-location";
 
-import type { UmiLocationElement } from "../umi-location";
+import type { UmiLocation } from "../umi-location";
 import { mercatorInverse, mercatorProject } from "./world-map-projection";
 import { computeTerminator } from "./world-map-terminator";
 import { renderWorldMapClock } from "./world-map-clock";
@@ -62,6 +62,9 @@ async function loadMapSvg(src: string): Promise<string> {
   return promise;
 }
 
+/**
+ * Supported attributes for the <umi-world-map> element.
+ */
 export type UmiWorldMapAttribute =
   | "value"
   | "offset"
@@ -79,7 +82,18 @@ export type UmiWorldMapAttribute =
   | "update-interval"
   | "src";
 
-export class UmiWorldMapElement extends HTMLElement {
+/**
+ * Displays an interactive Mercator-projected view of the Earth with
+ * Umi-Time visualizations and overlays.
+ *
+ * The map can display daylight and nighttime regions, latitude and
+ * longitude grids, timezone boundaries, pinned locations, and
+ * location-aware Umi-Time clocks.
+ *
+ * @event umi-location-hover Fired when the pointer moves over the map.
+ * detail: GeoPoint
+ */
+export class UmiWorldMap extends HTMLElement {
   static get observedAttributes(): readonly UmiWorldMapAttribute[] {
     return [
       "value",
@@ -123,30 +137,228 @@ export class UmiWorldMapElement extends HTMLElement {
   private latitudeGridDirty = true;
   private longitudeGridDirty = true;
 
-  value: string | null = null;
-  offset: number = 0;
-  live: boolean = false;
-  dark: boolean = false;
+  private loadedMapSrc: string | null = null;
+  private cursorLatitude = 0;
+  private cursorLongitude = 0;
+  private selectedLocation: UmiLocation | null = null;
 
-  src: string | null = null;
-  loadedMapSrc: string | null = null;
+  private _value = "";
+  private _offset = 0;
+  private _live = false;
+  private _dark = false;
 
-  showTerminator = false;
-  showLatitudeGrid = false;
-  showLongitudeGrid = false;
-  showPinnedClocks = false;
-  showCursorClock = false;
-  showMapOverlay = false;
-  showGridOverlay = false;
-  showTerminatorOverlay = false;
-  showClockOverlay = false;
+  private _showTerminator = false;
+  private _showLatitudeGrid = false;
+  private _showLongitudeGrid = false;
+  private _showPinnedClocks = false;
+  private _showCursorClock = false;
 
-  updateInterval = 250;
+  private _showMapOverlay = false;
+  private _showGridOverlay = false;
+  private _showTerminatorOverlay = false;
+  private _showClockOverlay = false;
 
-  cursorLatitude = 0;
-  cursorLongitude = 0;
+  private _updateInterval = 250;
+  private _src = "";
 
-  selectedLocation: UmiLocationElement | null = null;
+  /** Base UTC timestamp displayed by the map when live mode is disabled. */
+  public get value(): string {
+    return this._value;
+  }
+
+  public set value(value: string) {
+    this._value = value;
+
+    if (this.getAttribute("value") !== value) {
+      this.setAttribute("value", value);
+    }
+  }
+
+  /** Umi offset applied to the displayed time. */
+  public get offset(): number {
+    return this._offset;
+  }
+
+  public set offset(value: number) {
+    this._offset = value;
+
+    const attributeValue = String(value);
+
+    if (this.getAttribute("offset") !== attributeValue) {
+      this.setAttribute("offset", attributeValue);
+    }
+  }
+
+  /** Enables automatic updates using the current time. */
+  public get live(): boolean {
+    return this._live;
+  }
+
+  public set live(value: boolean) {
+    this._live = value;
+
+    if (this.hasAttribute("live") !== value) {
+      this.toggleAttribute("live", value);
+    }
+  }
+
+  /** Enables the dark color scheme when true. */
+  public get dark(): boolean {
+    return this._dark;
+  }
+
+  public set dark(value: boolean) {
+    this._dark = value;
+
+    if (this.hasAttribute("dark") !== value) {
+      this.toggleAttribute("dark", value);
+    }
+  }
+
+  /** Displays the day/night terminator. */
+  public get showTerminator(): boolean {
+    return this._showTerminator;
+  }
+
+  public set showTerminator(value: boolean) {
+    this._showTerminator = value;
+
+    if (this.hasAttribute("show-terminator") !== value) {
+      this.toggleAttribute("show-terminator", value);
+    }
+  }
+
+  /** Displays latitude grid lines. */
+  public get showLatitudeGrid(): boolean {
+    return this._showLatitudeGrid;
+  }
+
+  public set showLatitudeGrid(value: boolean) {
+    this._showLatitudeGrid = value;
+
+    if (this.hasAttribute("show-latitude-grid") !== value) {
+      this.toggleAttribute("show-latitude-grid", value);
+    }
+  }
+
+  /** Displays longitude grid lines. */
+  public get showLongitudeGrid(): boolean {
+    return this._showLongitudeGrid;
+  }
+
+  public set showLongitudeGrid(value: boolean) {
+    this._showLongitudeGrid = value;
+
+    if (this.hasAttribute("show-longitude-grid") !== value) {
+      this.toggleAttribute("show-longitude-grid", value);
+    }
+  }
+
+  /** Displays clocks pinned to configured locations. */
+  public get showPinnedClocks(): boolean {
+    return this._showPinnedClocks;
+  }
+
+  public set showPinnedClocks(value: boolean) {
+    this._showPinnedClocks = value;
+
+    if (this.hasAttribute("show-pinned-clocks") !== value) {
+      this.toggleAttribute("show-pinned-clocks", value);
+    }
+  }
+
+  /** Displays the interactive cursor clock. */
+  public get showCursorClock(): boolean {
+    return this._showCursorClock;
+  }
+
+  public set showCursorClock(value: boolean) {
+    this._showCursorClock = value;
+
+    if (this.hasAttribute("show-cursor-clock") !== value) {
+      this.toggleAttribute("show-cursor-clock", value);
+    }
+  }
+
+  /** Displays the custom map overlay layer. */
+  public get showMapOverlay(): boolean {
+    return this._showMapOverlay;
+  }
+
+  public set showMapOverlay(value: boolean) {
+    this._showMapOverlay = value;
+
+    if (this.hasAttribute("show-map-overlay") !== value) {
+      this.toggleAttribute("show-map-overlay", value);
+    }
+  }
+
+  /** Displays the grid overlay layer. */
+  public get showGridOverlay(): boolean {
+    return this._showGridOverlay;
+  }
+
+  public set showGridOverlay(value: boolean) {
+    this._showGridOverlay = value;
+
+    if (this.hasAttribute("show-grid-overlay") !== value) {
+      this.toggleAttribute("show-grid-overlay", value);
+    }
+  }
+
+  /** Displays the terminator overlay layer. */
+  public get showTerminatorOverlay(): boolean {
+    return this._showTerminatorOverlay;
+  }
+
+  public set showTerminatorOverlay(value: boolean) {
+    this._showTerminatorOverlay = value;
+
+    if (this.hasAttribute("show-terminator-overlay") !== value) {
+      this.toggleAttribute("show-terminator-overlay", value);
+    }
+  }
+
+  /** Displays the clock overlay layer. */
+  public get showClockOverlay(): boolean {
+    return this._showClockOverlay;
+  }
+
+  public set showClockOverlay(value: boolean) {
+    this._showClockOverlay = value;
+
+    if (this.hasAttribute("show-clock-overlay") !== value) {
+      this.toggleAttribute("show-clock-overlay", value);
+    }
+  }
+
+  /** Refresh interval in milliseconds when live mode is enabled. */
+  public get updateInterval(): number {
+    return this._updateInterval;
+  }
+
+  public set updateInterval(value: number) {
+    this._updateInterval = value;
+
+    const attributeValue = String(value);
+
+    if (this.getAttribute("update-interval") !== attributeValue) {
+      this.setAttribute("update-interval", attributeValue);
+    }
+  }
+
+  /** URL of the world map image asset. */
+  public get src(): string {
+    return this._src;
+  }
+
+  public set src(value: string) {
+    this._src = value;
+
+    if (this.getAttribute("src") !== value) {
+      this.setAttribute("src", value);
+    }
+  }
 
   constructor() {
     super();
@@ -214,18 +426,42 @@ export class UmiWorldMapElement extends HTMLElement {
     );
   }
 
+  /**
+   * Returns the SVG layer used for custom map overlays.
+   *
+   * Consumers can append additional SVG content to this layer to extend
+   * the world map visualization.
+   */
   public getMapOverlayLayer(): SVGGElement {
     return this.mapOverlayLayer;
   }
 
+  /**
+   * Returns the SVG layer used for latitude and longitude grid overlays.
+   *
+   * Consumers can append additional SVG content to this layer to extend
+   * the world map visualization.
+   */
   public getGridOverlayLayer(): SVGGElement {
     return this.gridOverlayLayer;
   }
 
+  /**
+   * Returns the SVG layer used to render the day/night terminator overlay.
+   *
+   * Consumers can append additional SVG content to this layer to extend
+   * the world map visualization.
+   */
   public getTerminatorOverlayLayer(): SVGGElement {
     return this.terminatorOverlayLayer;
   }
 
+  /**
+   * Returns the SVG layer used to render world map clock overlays.
+   *
+   * Consumers can append additional SVG content to this layer to extend
+   * the world map visualization.
+   */
   public getClockOverlayLayer(): SVGGElement {
     return this.clockOverlayLayer;
   }
@@ -263,80 +499,84 @@ export class UmiWorldMapElement extends HTMLElement {
     _oldValue: string | null,
     value: string | null,
   ): void {
-    switch (name) {
+    if (_oldValue === value) {
+      return;
+    }
+
+    switch (name as UmiWorldMapAttribute) {
       case "value":
-        this.value = value;
+        this._value = value ?? "";
         this.onTimeChanged();
         break;
 
       case "offset": {
         const parsed = Number(value);
 
-        this.offset = Number.isFinite(parsed) ? parsed : 0;
+        this._offset = Number.isFinite(parsed) ? parsed : 0;
         this.onTimeChanged();
         break;
       }
 
       case "live":
-        this.live = value !== null;
+        this._live = value !== null;
         this.onTimeChanged();
         this.start();
         break;
 
       case "dark":
-        this.dark = value !== null;
+        this._dark = value !== null;
         break;
 
       case "show-terminator":
-        this.showTerminator = value !== null;
+        this._showTerminator = value !== null;
         this.terminatorLastUmi = undefined;
         break;
 
       case "show-latitude-grid":
-        this.showLatitudeGrid = value !== null;
+        this._showLatitudeGrid = value !== null;
         this.latitudeGridDirty = true;
         break;
 
       case "show-longitude-grid":
-        this.showLongitudeGrid = value !== null;
+        this._showLongitudeGrid = value !== null;
         this.longitudeGridDirty = true;
         break;
 
       case "show-pinned-clocks":
-        this.showPinnedClocks = value !== null;
+        this._showPinnedClocks = value !== null;
         this.pinnedClocksLastUmi = undefined;
         break;
 
       case "show-cursor-clock":
-        this.showCursorClock = value !== null;
+        this._showCursorClock = value !== null;
         this.cursorClockLastUmi = undefined;
         this.updateCursorVisibility();
         break;
 
       case "show-map-overlay":
-        this.showMapOverlay = value !== null;
-        this.mapOverlayLayer.style.display = this.showMapOverlay
+        this._showMapOverlay = value !== null;
+        this.mapOverlayLayer.style.display = this._showMapOverlay
           ? "block"
           : "none";
         break;
 
       case "show-grid-overlay":
-        this.showGridOverlay = value !== null;
-        this.gridOverlayLayer.style.display = this.showGridOverlay
+        this._showGridOverlay = value !== null;
+        this.gridOverlayLayer.style.display = this._showGridOverlay
           ? "block"
           : "none";
         break;
 
       case "show-terminator-overlay":
-        this.showTerminatorOverlay = value !== null;
-        this.terminatorOverlayLayer.style.display = this.showTerminatorOverlay
+        this._showTerminatorOverlay = value !== null;
+        this.terminatorOverlayLayer.style.display = this._showTerminatorOverlay
           ? "block"
           : "none";
         break;
 
       case "show-clock-overlay":
-        this.showClockOverlay = value !== null;
-        this.clockOverlayLayer.style.display = this.showClockOverlay
+        this._showClockOverlay = value !== null;
+        this.clockOverlayLayer.style.display = this._showClockOverlay
           ? "block"
           : "none";
         break;
@@ -344,14 +584,14 @@ export class UmiWorldMapElement extends HTMLElement {
       case "update-interval": {
         const parsed = Number(value);
 
-        this.updateInterval =
+        this._updateInterval =
           Number.isFinite(parsed) && parsed > 0 ? parsed : 250;
         this.start();
         break;
       }
 
       case "src":
-        this.src = value;
+        this._src = value ?? "";
         break;
     }
 
@@ -359,7 +599,7 @@ export class UmiWorldMapElement extends HTMLElement {
   }
 
   private updateCursorVisibility(): void {
-    this.svg.classList.toggle("cursor-clock-active", this.showCursorClock);
+    this.svg.classList.toggle("cursor-clock-active", this._showCursorClock);
   }
 
   private onTimeChanged() {
@@ -368,18 +608,12 @@ export class UmiWorldMapElement extends HTMLElement {
     this.terminatorLastUmi = undefined;
   }
 
-  get locations(): UmiLocationElement[] {
+  get locations(): UmiLocation[] {
     return Array.from(this.querySelectorAll("umi-location"));
   }
 
-  addLocation(
-    label: string,
-    latitude: number,
-    longitude: number,
-  ): UmiLocationElement {
-    const location = document.createElement(
-      "umi-location",
-    ) as UmiLocationElement;
+  addLocation(label: string, latitude: number, longitude: number): UmiLocation {
+    const location = document.createElement("umi-location") as UmiLocation;
 
     location.label = label;
     location.latitude = latitude;
@@ -391,12 +625,12 @@ export class UmiWorldMapElement extends HTMLElement {
     return location;
   }
 
-  private getCurrentTime(): UmiTimeCore {
+  private getCurrentTime(): UmiTime {
     const currentTime =
-      this.live || !this.value ? new Date() : new Date(this.value);
+      this._live || !this._value ? new Date() : new Date(this._value);
 
-    currentTime.setUTCMinutes(currentTime.getUTCMinutes() + this.offset * 4);
-    return new UmiTimeCore(currentTime);
+    currentTime.setUTCMinutes(currentTime.getUTCMinutes() + this._offset * 4);
+    return new UmiTime(currentTime);
   }
 
   private installPointerHandlers(): void {
@@ -445,9 +679,9 @@ export class UmiWorldMapElement extends HTMLElement {
   start(): void {
     this.stop();
 
-    if (!this.live) return;
+    if (!this._live) return;
 
-    this.timer = window.setInterval(() => this.render(), this.updateInterval);
+    this.timer = window.setInterval(() => this.render(), this._updateInterval);
   }
 
   stop(): void {
@@ -476,7 +710,7 @@ export class UmiWorldMapElement extends HTMLElement {
       this.terminatorLastUmi === undefined ||
       umiTime.umi != this.terminatorLastUmi
     ) {
-      if (this.showTerminator) {
+      if (this._showTerminator) {
         this.renderTerminator(umiTime);
       } else {
         this.terminatorLayer.replaceChildren();
@@ -491,7 +725,7 @@ export class UmiWorldMapElement extends HTMLElement {
     ) {
       this.pinnedClockLayer.replaceChildren();
 
-      if (this.showPinnedClocks) {
+      if (this._showPinnedClocks) {
         this.renderPinnedClocks(umiTime);
       }
 
@@ -502,7 +736,7 @@ export class UmiWorldMapElement extends HTMLElement {
       this.cursorClockLastUmi === undefined ||
       umiTime.umi != this.cursorClockLastUmi
     ) {
-      if (this.showCursorClock) {
+      if (this._showCursorClock) {
         this.updateCursorClock(umiTime);
       }
       this.cursorClockLastUmi = umiTime.umi;
@@ -510,7 +744,7 @@ export class UmiWorldMapElement extends HTMLElement {
   }
 
   private async renderMap(): Promise<void> {
-    const targetKey = this.src || DEFAULT_MAP_KEY;
+    const targetKey = this._src || DEFAULT_MAP_KEY;
 
     if (this.loadedMapSrc === targetKey) {
       return;
@@ -518,7 +752,7 @@ export class UmiWorldMapElement extends HTMLElement {
 
     try {
       // Use the bundled SVG string if no custom `src` URL was provided
-      const svgText = this.src ? await loadMapSvg(this.src) : defaultMapSvg;
+      const svgText = this._src ? await loadMapSvg(this._src) : defaultMapSvg;
 
       const parser = new DOMParser();
       const svgDocument = parser.parseFromString(svgText, "image/svg+xml");
@@ -536,7 +770,7 @@ export class UmiWorldMapElement extends HTMLElement {
     }
   }
 
-  private renderTerminator(time: UmiTimeCore): void {
+  private renderTerminator(time: UmiTime): void {
     this.terminatorLayer.replaceChildren();
 
     const { points, borderOnTop } = computeTerminator(
@@ -591,23 +825,23 @@ export class UmiWorldMapElement extends HTMLElement {
     this.terminatorLayer.append(path);
   }
 
-  private renderCursorClock(time: UmiTimeCore): void {
+  private renderCursorClock(time: UmiTime): void {
     this.appendClock(this.cursorLatitude, this.cursorLongitude, time, {
       size: CURSOR_CLOCK_SIZE,
     });
   }
 
-  private updateCursorClock(time: UmiTimeCore): void {
+  private updateCursorClock(time: UmiTime): void {
     this.cursorClockLayer.replaceChildren();
 
-    if (this.showCursorClock) {
+    if (this._showCursorClock) {
       this.renderCursorClock(time);
     }
 
     this.cursorClockLastUmi = time.umi;
   }
 
-  private renderPinnedClocks(time: UmiTimeCore): void {
+  private renderPinnedClocks(time: UmiTime): void {
     for (const location of this.locations) {
       this.appendClock(location.latitude, location.longitude, time, {
         size: PINNED_CLOCK_SIZE,
@@ -620,7 +854,7 @@ export class UmiWorldMapElement extends HTMLElement {
   private appendClock(
     latitude: number,
     longitude: number,
-    time: UmiTimeCore,
+    time: UmiTime,
     options: {
       size: number;
       label?: string;
@@ -697,7 +931,7 @@ export class UmiWorldMapElement extends HTMLElement {
   private renderLatitudeGrid(): void {
     this.latitudeGridLayer.replaceChildren();
 
-    if (!this.showLatitudeGrid) {
+    if (!this._showLatitudeGrid) {
       return;
     }
 
@@ -736,7 +970,7 @@ export class UmiWorldMapElement extends HTMLElement {
   private renderLongitudeGrid(): void {
     this.longitudeGridLayer.replaceChildren();
 
-    if (!this.showLongitudeGrid) {
+    if (!this._showLongitudeGrid) {
       return;
     }
 
@@ -797,6 +1031,6 @@ export class UmiWorldMapElement extends HTMLElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "umi-world-map": UmiWorldMapElement;
+    "umi-world-map": UmiWorldMap;
   }
 }

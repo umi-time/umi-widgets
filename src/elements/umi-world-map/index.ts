@@ -1,14 +1,13 @@
 // umi-world-map/index.ts
 
-import { UmiWorldMapElement } from "./umi-world-map";
+import { UmiWorldMap } from "./umi-world-map";
 
-export { UmiWorldMapElement };
+export { UmiWorldMap };
 
 export * from "./world-map-projection";
-export * from "./world-map-clock";
-export * from "./world-map-grid";
-export * from "./world-map-terminator";
 
+export type { UmiWorldMapAttribute } from "./umi-world-map";
+  
 const UMI_WORLD_MAP_TAG = "umi-world-map";
 
 if (
@@ -17,6 +16,6 @@ if (
 ) {
   customElements.define(
     UMI_WORLD_MAP_TAG,
-    UmiWorldMapElement,
+    UmiWorldMap,
   );
 }

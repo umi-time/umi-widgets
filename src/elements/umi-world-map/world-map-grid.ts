@@ -6,17 +6,42 @@ import {
   MAP_MAX_LONGITUDE,
 } from "./world-map-projection";
 
+/**
+ * Describes a latitude or longitude grid line rendered on the world map.
+ */
 export interface GridLine {
+  /** Starting x-coordinate in pixels. */
   x1: number;
+
+  /** Starting y-coordinate in pixels. */
   y1: number;
+
+  /** Ending x-coordinate in pixels. */
   x2: number;
+
+  /** Ending y-coordinate in pixels. */
   y2: number;
 
+  /** Latitude or longitude value represented by the line. */
   value: number;
+
+  /** Display label for the grid line. */
   label: string;
+
+  /** Indicates whether the line is a major grid interval. */
   isMajor: boolean;
 }
 
+/**
+ * Builds the latitude grid lines used by the world map overlay.
+ *
+ * The returned lines include rendering coordinates, display labels,
+ * and major/minor grid classifications.
+ *
+ * @param width Width of the map in pixels.
+ * @param height Height of the map in pixels.
+ * @returns Latitude grid line definitions for the map.
+ */
 export function buildLatitudeLines(width: number, height: number): GridLine[] {
   const lines: GridLine[] = [];
 
@@ -43,6 +68,16 @@ export function buildLatitudeLines(width: number, height: number): GridLine[] {
   return lines;
 }
 
+/**
+ * Builds the longitude grid lines used by the world map overlay.
+ *
+ * The returned lines include rendering coordinates, display labels,
+ * and major/minor grid classifications.
+ *
+ * @param width Width of the map in pixels.
+ * @param height Height of the map in pixels.
+ * @returns Longitude grid line definitions for the map.
+ */
 export function buildLongitudeLines(width: number, height: number): GridLine[] {
   const lines: GridLine[] = [];
 

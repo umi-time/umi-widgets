@@ -5,8 +5,6 @@ export {
   buildSolarConicGradient,
   buildSolarLinearGradient,
   lerpColor,
-  parseHexColor,
-  solarElevationToColor,
 } from "./shared/colors";
 
 export {

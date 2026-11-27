@@ -12,6 +12,14 @@ export function parseHexColor(hex: string): [number, number, number] {
   ];
 }
 
+/**
+ * Linearly interpolates between two RGB hex colors.
+ *
+ * @param c1 Starting color in "#RRGGBB" format.
+ * @param c2 Ending color in "#RRGGBB" format.
+ * @param t Interpolation amount from 0.0 to 1.0.
+ * @returns Interpolated color in "#RRGGBB" format.
+ */
 export function lerpColor(c1: string, c2: string, t: number): string {
   const tClamped = Math.max(0, Math.min(1, t));
 
@@ -44,8 +52,16 @@ export function solarElevationToColor(elevationDeg: number): string {
 }
 
 /**
- * Builds a 360-degree CSS conic-gradient representing solar illumination
- * across the dial for a given latitude, solar declination, and equation of time.
+ * Builds a 360-degree CSS conic gradient representing solar illumination
+ * around a clock dial.
+ *
+ * The gradient visualizes daylight, twilight, and nighttime periods for
+ * the specified latitude and solar conditions.
+ *
+ * @param latitudeDeg Latitude in decimal degrees.
+ * @param solarDeclinationDeg Solar declination in degrees.
+ * @param equationOfTimeMinutes Equation of time in minutes.
+ * @returns A CSS conic-gradient() string suitable for use as a background.
  */
 export function buildSolarConicGradient(
   latitudeDeg: number,
@@ -73,8 +89,17 @@ export function buildSolarConicGradient(
 }
 
 /**
- * Builds a horizontal 0%..100% CSS linear-gradient representing solar
- * illumination across the 0..360 UTC umi day for an observer at (lat, lon).
+ * Builds a CSS linear gradient representing solar illumination across
+ * a complete 0–360 umi day for a specific location.
+ *
+ * The gradient visualizes daylight, twilight, and nighttime periods
+ * along the timeline of a Umi-Time day.
+ *
+ * @param latitudeDeg Latitude in decimal degrees.
+ * @param longitudeDeg Longitude in decimal degrees.
+ * @param solarDeclinationDeg Solar declination in degrees.
+ * @param equationOfTimeMinutes Equation of time in minutes.
+ * @returns A CSS linear-gradient() string suitable for use as a background.
  */
 export function buildSolarLinearGradient(
   latitudeDeg: number,

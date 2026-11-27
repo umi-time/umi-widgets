@@ -1,9 +1,12 @@
-import { UmiTime as UmiTimeCore } from "umi-time";
+import { UmiTime } from "umi-time";
 import { buildSolarLinearGradient } from "../../shared/colors";
 import { clampLatitude, clampLongitude } from "../../shared/coordinates";
-import { UmiDisplayElement } from "../umi-display";
-import { UmiTimelineRowElement } from "./umi-timeline-row";
+import { UmiReadout } from "../umi-readout";
+import { UmiTimelineRow } from "./umi-timeline-row";
 
+/**
+ * Supported attributes for the <umi-timeline> element.
+ */
 export type UmiTimelineAttribute =
   | "value"
   | "live"
@@ -11,41 +14,68 @@ export type UmiTimelineAttribute =
   | "dark"
   | "update-interval";
 
+/**
+ * Snapshot of a timeline row's computed state.
+ *
+ * Contains the row's location information together with the calculated
+ * daylight phase and sunrise/sunset values for the current timeline time.
+ */
 export interface UmiTimelineRowSnapshot {
+  /** Display label for the location. */
   label: string;
+
+  /** Latitude in decimal degrees. */
   latitude: number;
+
+  /** Longitude in decimal degrees. */
   longitude: number;
+
+  /** Computed day phase value used for timeline rendering. */
   dayPhase: number;
+
+  /** Sunrise time in umi, if a sunrise occurs on the selected day. */
   sunriseUmi: number | null;
+
+  /** Sunset time in umi, if a sunset occurs on the selected day. */
   sunsetUmi: number | null;
 }
 
+/**
+ * Event detail for the "umi-timeline-select" event.
+ *
+ * Contains the selected Umi-Time value and the computed state of all
+ * timeline rows at the selected moment.
+ */
 export interface UmiTimelineSelectDetail {
-  umiTime: UmiTimeCore;
+  /** The selected Umi-Time instance. */
+  umiTime: UmiTime;
+
+  /** The selected umi value. */
   umi: number;
+
+  /** Snapshot data for all rows in the timeline. */
   rows: UmiTimelineRowSnapshot[];
 }
 
-function wrap360(
-  value: number,
-): number {
-  return (
-    ((value % 360) + 360) %
-    360
-  );
+function wrap360(value: number): number {
+  return ((value % 360) + 360) % 360;
 }
 
 const DAY_PHASE_WIDTH = 15;
 
-export class UmiTimelineElement extends HTMLElement {
+/**
+ * Displays a collection of locations on a shared Umi-Time timeline.
+ *
+ * The timeline can update live, visualize daylight phases, and emit
+ * selection events that provide Umi-Time and row snapshot data for the
+ * selected moment.
+ * @event umi-select Fired while the timeline is being scrubbed.
+ * detail: UmiTimelineSelectDetail
+ */
+export class UmiTimeline extends HTMLElement {
   static get observedAttributes(): readonly UmiTimelineAttribute[] {
     return ["value", "live", "show-phases", "dark", "update-interval"];
   }
-
-  public live = false;
-  public showPhases = false;
-  public darkMode = false;
-  public updateInterval = 1000;
 
   private baseDate: Date = new Date();
   private scrubbedUmi: number | null = null;
@@ -55,7 +85,7 @@ export class UmiTimelineElement extends HTMLElement {
 
   private readonly shadow: ShadowRoot;
   private readonly container: HTMLDivElement;
-  private readonly headerDisplayEl: UmiDisplayElement;
+  private readonly headerDisplayEl: UmiReadout;
   private readonly headerUtcEl: HTMLSpanElement;
   private readonly dateInput: HTMLInputElement;
   private readonly liveBtn: HTMLButtonElement;
@@ -63,6 +93,75 @@ export class UmiTimelineElement extends HTMLElement {
   private readonly rowsHost: HTMLDivElement;
   private readonly playheadEl: HTMLDivElement;
   private readonly playheadBadgeEl: HTMLSpanElement;
+
+  private _live = false;
+  private _showPhases = false;
+  private _dark = false;
+  private _updateInterval = 1000;
+
+  public get value(): string {
+    return this.baseDate.toISOString();
+  }
+
+  public set value(value: string) {
+    if (this.getAttribute("value") !== value) {
+      this.setAttribute("value", value);
+    }
+  }
+
+  /** Enables automatic updates as time advances. */
+  public get live(): boolean {
+    return this._live;
+  }
+
+  public set live(value: boolean) {
+    this._live = value;
+
+    if (this.hasAttribute("live") !== value) {
+      this.toggleAttribute("live", value);
+    }
+  }
+
+  /** Displays daylight phase information for each timeline row. */
+  public get showPhases(): boolean {
+    return this._showPhases;
+  }
+
+  public set showPhases(value: boolean) {
+    this._showPhases = value;
+
+    if (this.hasAttribute("show-phases") !== value) {
+      this.toggleAttribute("show-phases", value);
+    }
+  }
+
+  /** Enables the dark color scheme when true. */
+  public get dark(): boolean {
+    return this._dark;
+  }
+
+  public set dark(value: boolean) {
+    this._dark = value;
+
+    if (this.hasAttribute("dark") !== value) {
+      this.toggleAttribute("dark", value);
+    }
+  }
+
+  /** Refresh interval in milliseconds when live updating is enabled. */
+  public get updateInterval(): number {
+    return this._updateInterval;
+  }
+
+  public set updateInterval(value: number) {
+    this._updateInterval = value;
+
+    const attributeValue = String(value);
+
+    if (this.getAttribute("update-interval") !== attributeValue) {
+      this.setAttribute("update-interval", attributeValue);
+    }
+  }
 
   constructor() {
     super();
@@ -324,9 +423,7 @@ export class UmiTimelineElement extends HTMLElement {
     titleGroup.className = "header-title";
 
     // Proper human-friendly display readout: e.g. "301ᵘ 000s"
-    this.headerDisplayEl = document.createElement(
-      "umi-display",
-    ) as UmiDisplayElement;
+    this.headerDisplayEl = document.createElement("umi-readout") as UmiReadout;
 
     this.headerDisplayEl.className = "umi-readout";
     this.headerDisplayEl.setAttribute("seconds", "");
@@ -438,7 +535,7 @@ export class UmiTimelineElement extends HTMLElement {
   connectedCallback(): void {
     this.observer.observe(this, { childList: true, subtree: true });
     this.render();
-    if (this.live) {
+    if (this._live) {
       this.start();
     }
   }
@@ -467,8 +564,8 @@ export class UmiTimelineElement extends HTMLElement {
         }
         break;
       case "live":
-        this.live = newValue !== null && newValue !== "false";
-        if (this.live) {
+        this._live = newValue !== null && newValue !== "false";
+        if (this._live) {
           this.scrubbedUmi = null;
           if (this.isConnected) this.start();
         } else {
@@ -476,18 +573,18 @@ export class UmiTimelineElement extends HTMLElement {
         }
         break;
       case "show-phases":
-        this.showPhases = newValue !== null && newValue !== "false";
+        this._showPhases = newValue !== null && newValue !== "false";
         break;
       case "dark":
-        this.darkMode = newValue === "true" || newValue === "";
-        this.container.classList.toggle("dark", this.darkMode);
+        this._dark = newValue === "true" || newValue === "";
+        this.container.classList.toggle("dark", this._dark);
         break;
       case "update-interval":
         if (newValue !== null) {
           const parsed = parseInt(newValue, 10);
           if (Number.isFinite(parsed) && parsed > 0) {
-            this.updateInterval = parsed;
-            if (this.live && this.isConnected) this.start();
+            this._updateInterval = parsed;
+            if (this._live && this.isConnected) this.start();
           }
         }
         break;
@@ -495,11 +592,19 @@ export class UmiTimelineElement extends HTMLElement {
     this.render();
   }
 
+  /**
+   * Adds a location to the timeline.
+   *
+   * @param label Display label for the location.
+   * @param latitude Latitude in decimal degrees.
+   * @param longitude Longitude in decimal degrees.
+   * @returns The created timeline row element.
+   */
   public addLocation(
     label: string,
     latitude: number,
     longitude: number,
-  ): UmiTimelineRowElement {
+  ): UmiTimelineRow {
     const row = document.createElement("umi-timeline-row");
     row.setAttribute("label", label);
     const lat = clampLatitude(latitude);
@@ -510,6 +615,13 @@ export class UmiTimelineElement extends HTMLElement {
     return row;
   }
 
+  /**
+   * Shifts the timeline by the specified number of days.
+   *
+   * Positive values move forward in time and negative values move backward.
+   *
+   * @param days Number of days to shift.
+   */
   public shiftDays(days: number): void {
     const current = this.resolveTargetUmiTime().utc;
     const shifted = new Date(current.getTime() + days * 86_400_000);
@@ -517,7 +629,7 @@ export class UmiTimelineElement extends HTMLElement {
   }
 
   private setBaseDate(date: Date): void {
-    this.live = false;
+    this._live = false;
     this.removeAttribute("live");
     this.stop();
     this.baseDate = date;
@@ -525,23 +637,32 @@ export class UmiTimelineElement extends HTMLElement {
     this.render();
   }
 
+  /**
+   * Returns the timeline to live mode using the current time.
+   */
   public resetToLive(): void {
     this.scrubbedUmi = null;
-    this.live = true;
+    this._live = true;
     this.setAttribute("live", "");
     this.start();
     this.render();
   }
 
+  /**
+   * Starts automatic updates as time advances.
+   */
   public start(): void {
     this.stop();
     this.timer = window.setInterval(() => {
       if (this.scrubbedUmi === null) {
         this.render();
       }
-    }, this.updateInterval);
+    }, this._updateInterval);
   }
 
+  /**
+   * Stops automatic updates.
+   */
   public stop(): void {
     if (this.timer !== undefined) {
       window.clearInterval(this.timer);
@@ -549,13 +670,13 @@ export class UmiTimelineElement extends HTMLElement {
     }
   }
 
-  private getRowElements(): UmiTimelineRowElement[] {
+  private getRowElements(): UmiTimelineRow[] {
     return Array.from(this.querySelectorAll("umi-timeline-row"));
   }
 
-  private resolveTargetUmiTime(): UmiTimeCore {
+  private resolveTargetUmiTime(): UmiTime {
     const referenceDate =
-      this.live && this.scrubbedUmi === null ? new Date() : this.baseDate;
+      this._live && this.scrubbedUmi === null ? new Date() : this.baseDate;
     if (this.scrubbedUmi !== null) {
       const startOfUtcDayMs = Date.UTC(
         referenceDate.getUTCFullYear(),
@@ -563,12 +684,12 @@ export class UmiTimelineElement extends HTMLElement {
         referenceDate.getUTCDate(),
       );
       const offsetMs = (this.scrubbedUmi / 360) * 86_400_000;
-      return new UmiTimeCore(new Date(startOfUtcDayMs + offsetMs));
+      return new UmiTime(new Date(startOfUtcDayMs + offsetMs));
     }
-    return new UmiTimeCore(referenceDate);
+    return new UmiTime(referenceDate);
   }
 
-  public render(): void {
+  private render(): void {
     const target = this.resolveTargetUmiTime();
     const fractionalUmi =
       target.umi + (target.second + target.millisecond / 1000) / 240;
@@ -585,7 +706,7 @@ export class UmiTimelineElement extends HTMLElement {
 
     this.liveBtn.classList.toggle(
       "active",
-      this.live && this.scrubbedUmi === null,
+      this._live && this.scrubbedUmi === null,
     );
 
     this.playheadEl.style.left = `${pct}%`;
@@ -600,7 +721,7 @@ export class UmiTimelineElement extends HTMLElement {
       const lon = rowEl.longitude;
       const label = rowEl.label || `${lat.toFixed(1)}°, ${lon.toFixed(1)}°`;
 
-      const locUmi = new UmiTimeCore(
+      const locUmi = new UmiTime(
         target.utc,
         { value: lat, uncertainty: 0 },
         { value: lon, uncertainty: 0 },
@@ -654,7 +775,7 @@ export class UmiTimelineElement extends HTMLElement {
         locUmi.equationOfTime,
       );
 
-      if (this.showPhases) {
+      if (this._showPhases) {
         this.appendAlignedPhaseGrid(track, lon);
       }
 
@@ -662,7 +783,7 @@ export class UmiTimelineElement extends HTMLElement {
         const srMarker = document.createElement("div");
         srMarker.className = "sun-marker";
         srMarker.title = `Sunrise: ${Math.round(sunriseUmi)}ᵘ`;
-        srMarker.style.left = `${(wrap360(sunriseUmi) / 3.6)}%`;
+        srMarker.style.left = `${wrap360(sunriseUmi) / 3.6}%`;
         track.appendChild(srMarker);
       }
 
@@ -670,7 +791,7 @@ export class UmiTimelineElement extends HTMLElement {
         const ssMarker = document.createElement("div");
         ssMarker.className = "sun-marker";
         ssMarker.title = `Sunset: ${Math.round(sunsetUmi)}ᵘ`;
-        ssMarker.style.left = `${(wrap360(sunsetUmi) / 3.6)}%`;
+        ssMarker.style.left = `${wrap360(sunsetUmi) / 3.6}%`;
         track.appendChild(ssMarker);
       }
 
@@ -721,7 +842,7 @@ export class UmiTimelineElement extends HTMLElement {
 
     // Leading partial interval [0, firstBoundaryUmi)
     if (firstBoundaryUmi > 0) {
-      const startPhase = Math.floor((wrap360(0 + lon)) / 15);
+      const startPhase = Math.floor(wrap360(0 + lon) / 15);
       addCell(0, firstBoundaryUmi, startPhase);
     }
 
@@ -729,7 +850,7 @@ export class UmiTimelineElement extends HTMLElement {
     for (let startUmi = firstBoundaryUmi; startUmi < 360; startUmi += 15) {
       const endUmi = Math.min(360, startUmi + 15);
       const midUmi = (startUmi + endUmi) / 2;
-      const phase = Math.floor((wrap360(midUmi + lon)) / 15);
+      const phase = Math.floor(wrap360(midUmi + lon) / 15);
 
       addCell(startUmi, endUmi, phase);
     }
@@ -777,6 +898,6 @@ export class UmiTimelineElement extends HTMLElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "umi-timeline": UmiTimelineElement;
+    "umi-timeline": UmiTimeline;
   }
 }

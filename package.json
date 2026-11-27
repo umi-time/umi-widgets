@@ -64,11 +64,6 @@
       "import": "./dist/elements/umi-demo-world-map/index.js",
       "require": "./dist/elements/umi-demo-world-map/index.cjs"
     },
-    "./elements/umi-display": {
-      "types": "./dist/elements/umi-display/index.d.ts",
-      "import": "./dist/elements/umi-display/index.js",
-      "require": "./dist/elements/umi-display/index.cjs"
-    },
     "./elements/umi-location": {
       "types": "./dist/elements/umi-location/index.d.ts",
       "import": "./dist/elements/umi-location/index.js",
@@ -79,10 +74,10 @@
       "import": "./dist/elements/umi-options-menu/index.js",
       "require": "./dist/elements/umi-options-menu/index.cjs"
     },
-    "./elements/umi-time": {
-      "types": "./dist/elements/umi-time/index.d.ts",
-      "import": "./dist/elements/umi-time/index.js",
-      "require": "./dist/elements/umi-time/index.cjs"
+    "./elements/umi-readout": {
+      "types": "./dist/elements/umi-readout/index.d.ts",
+      "import": "./dist/elements/umi-readout/index.js",
+      "require": "./dist/elements/umi-readout/index.cjs"
     },
     "./elements/umi-time-explorer": {
       "types": "./dist/elements/umi-time-explorer/index.d.ts",
@@ -93,6 +88,11 @@
       "types": "./dist/elements/umi-timeline/index.d.ts",
       "import": "./dist/elements/umi-timeline/index.js",
       "require": "./dist/elements/umi-timeline/index.cjs"
+    },
+    "./elements/umi-timestamp": {
+      "types": "./dist/elements/umi-timestamp/index.d.ts",
+      "import": "./dist/elements/umi-timestamp/index.js",
+      "require": "./dist/elements/umi-timestamp/index.cjs"
     },
     "./elements/umi-timezones": {
       "types": "./dist/elements/umi-timezones/index.d.ts",

@@ -1,8 +1,18 @@
 import { clampLatitude, clampLongitude } from "../../shared/coordinates";
 
+/**
+ * Supported attributes for the <umi-timeline-row> element.
+ */
 export type UmiTimelineRowAttribute = "label" | "latitude" | "longitude";
 
-export class UmiTimelineRowElement extends HTMLElement {
+/**
+ * Defines a location entry within a <umi-timeline> element.
+ *
+ * This is a non-visual data element that supplies the label and geographic
+ * coordinates for a timeline row rendered by the parent timeline.
+ * @event umi-row-change Fired when the row definition changes.
+ */
+export class UmiTimelineRow extends HTMLElement {
   static get observedAttributes(): readonly UmiTimelineRowAttribute[] {
     return ["label", "latitude", "longitude"];
   }
@@ -11,28 +21,59 @@ export class UmiTimelineRowElement extends HTMLElement {
   private _latitude = 0;
   private _longitude = 0;
 
-  get label(): string {
+  /** Display label for the timeline row. */
+  public get label(): string {
     return this._label;
   }
 
-  set label(value: string) {
+  public set label(value: string) {
     this._label = value;
+
+    if (this.getAttribute("label") !== value) {
+      this.setAttribute("label", value);
+    }
   }
 
-  get latitude(): number {
+  /** Latitude in decimal degrees. */
+  public get latitude(): number {
     return this._latitude;
   }
 
-  set latitude(value: number) {
-    this._latitude = value;
+  public set latitude(value: number) {
+    const clamped = clampLatitude(value);
+
+    if (clamped === null) {
+      return;
+    }
+
+    this._latitude = clamped;
+
+    const attributeValue = String(clamped);
+
+    if (this.getAttribute("latitude") !== attributeValue) {
+      this.setAttribute("latitude", attributeValue);
+    }
   }
 
-  get longitude(): number {
+  /** Longitude in decimal degrees. */
+  public get longitude(): number {
     return this._longitude;
   }
 
-  set longitude(value: number) {
-    this._longitude = value;
+  public set longitude(value: number) {
+    const clamped = clampLongitude(value);
+
+    if (clamped === null) {
+      return;
+    }
+
+    this._longitude = clamped;
+
+    const attributeValue = String(clamped);
+
+    if (this.getAttribute("longitude") !== attributeValue) {
+      this.setAttribute("longitude", attributeValue);
+    }
   }
 
   attributeChangedCallback(
@@ -40,49 +81,46 @@ export class UmiTimelineRowElement extends HTMLElement {
     oldValue: string | null,
     newValue: string | null,
   ): void {
-    if (oldValue === newValue) return;
+    if (oldValue === newValue) {
+      return;
+    }
 
-    switch (name) {
+    switch (name as UmiTimelineRowAttribute) {
       case "label":
-        this.label = newValue ?? "";
+        this._label = newValue ?? "";
         break;
 
       case "latitude": {
-        if (newValue === null) {
-          this.latitude = 0;
-          break;
-        }
-
-        const clamped = clampLatitude(parseFloat(newValue));
+        const clamped = clampLatitude(Number(newValue));
 
         if (clamped !== null) {
-          this.latitude = clamped;
+          this._latitude = clamped;
         }
+
         break;
       }
 
       case "longitude": {
-        if (newValue === null) {
-          this.longitude = 0;
-          break;
-        }
-
-        const clamped = clampLongitude(parseFloat(newValue));
+        const clamped = clampLongitude(Number(newValue));
 
         if (clamped !== null) {
-          this.longitude = clamped;
+          this._longitude = clamped;
         }
 
         break;
       }
     }
 
-    this.dispatchEvent(new CustomEvent("umi-row-change", { bubbles: true }));
+    this.dispatchEvent(
+      new CustomEvent("umi-row-change", {
+        bubbles: true,
+      }),
+    );
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "umi-timeline-row": UmiTimelineRowElement;
+    "umi-timeline-row": UmiTimelineRow;
   }
 }

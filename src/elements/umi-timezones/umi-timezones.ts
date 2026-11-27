@@ -1,6 +1,6 @@
 // src/elements/umi-timezones/umi-timezones.ts
 
-import { UmiWorldMapElement } from "../umi-world-map/umi-world-map";
+import { UmiWorldMap } from "../umi-world-map/umi-world-map";
 import {
   GeoJsonFeatureCollection,
   renderTimeZones,
@@ -8,6 +8,9 @@ import {
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
+/**
+ * Supported attributes for the <umi-timezones> element.
+ */
 export type UmiTimezonesAttribute = "src";
 
 function createTimezoneLayer(
@@ -28,7 +31,13 @@ function createTimezoneLayer(
   return layer;
 }
 
-export class UmiTimezonesElement extends HTMLElement {
+/**
+ * Displays timezone boundary overlays on a parent <umi-world-map> element.
+ *
+ * Timezone data can be loaded from a bundled dataset or from a custom
+ * GeoJSON source specified by the src attribute.
+ */
+export class UmiTimezones extends HTMLElement {
   static get observedAttributes(): readonly UmiTimezonesAttribute[] {
     return ["src"];
   }
@@ -36,11 +45,16 @@ export class UmiTimezonesElement extends HTMLElement {
   private _src = "";
   private _data: GeoJsonFeatureCollection | null = null;
 
-  get src(): string {
+  /**
+ * URL of the GeoJSON timezone dataset.
+ *
+ * When omitted, the bundled timezone dataset is used.
+ */
+  public get src(): string {
     return this._src;
   }
 
-  set src(value: string) {
+  public set src(value: string) {
     this._src = value;
     this._data = null;
 
@@ -49,11 +63,11 @@ export class UmiTimezonesElement extends HTMLElement {
     }
   }
 
-  get data(): GeoJsonFeatureCollection | null {
+  private get data(): GeoJsonFeatureCollection | null {
     return this._data;
   }
 
-  set data(value: GeoJsonFeatureCollection | null) {
+  private set data(value: GeoJsonFeatureCollection | null) {
     this._data = value;
     if (this.isConnected) {
       void this.render();
@@ -69,6 +83,10 @@ export class UmiTimezonesElement extends HTMLElement {
     _oldValue: string | null,
     value: string | null,
   ): void {
+    if (_oldValue === value) {
+      return;
+    }
+
     if (name === "src") {
       this._src = value ?? "";
       this._data = null;
@@ -82,7 +100,7 @@ export class UmiTimezonesElement extends HTMLElement {
   private async render(): Promise<void> {
     const worldMap = this.closest(
       "umi-world-map",
-    ) as UmiWorldMapElement | null;
+    ) as UmiWorldMap | null;
 
     if (!worldMap) {
       return;
@@ -105,6 +123,6 @@ export class UmiTimezonesElement extends HTMLElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "umi-timezones": UmiTimezonesElement;
+    "umi-timezones": UmiTimezones;
   }
 }

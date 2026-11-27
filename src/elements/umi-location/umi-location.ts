@@ -2,8 +2,27 @@
 
 import { clampLatitude } from "../../shared/coordinates";
 
-export class UmiLocationElement extends HTMLElement {
-  static get observedAttributes() {
+/**
+ * Supported attributes for the <umi-location> element.
+ */
+export type UmiLocationAttribute =
+  | "label"
+  | "latitude"
+  | "longitude"
+  | "color"
+  | "timezone";
+
+/**
+ * Defines a geographic location for use by other Umi-Time components.
+ *
+ * This is a non-visual data element that supplies a label, coordinates,
+ * and optional timezone or color information to parent components such
+ * as maps, timelines, and other location-aware displays.
+ *
+ * @event umi-location-change Fired when any location attribute changes.
+ */
+export class UmiLocation extends HTMLElement {
+  static get observedAttributes(): UmiLocationAttribute[] {
     return ["label", "latitude", "longitude", "color", "timezone"];
   }
 
@@ -13,11 +32,12 @@ export class UmiLocationElement extends HTMLElement {
   private _timezone = "";
   private _color = "";
 
-  get label(): string {
+  /** Display label for the location. */
+  public get label(): string {
     return this._label;
   }
 
-  set label(value: string) {
+  public set label(value: string) {
     this._label = value;
 
     if (this.getAttribute("label") !== value) {
@@ -25,11 +45,12 @@ export class UmiLocationElement extends HTMLElement {
     }
   }
 
-  get latitude(): number {
+  /** Latitude in decimal degrees. */
+  public get latitude(): number {
     return this._latitude;
   }
 
-  set latitude(value: number) {
+  public set latitude(value: number) {
     const clamped = clampLatitude(value);
 
     if (clamped === null) {
@@ -45,11 +66,12 @@ export class UmiLocationElement extends HTMLElement {
     }
   }
 
-  get longitude(): number {
+  /** Longitude in decimal degrees. */
+  public get longitude(): number {
     return this._longitude;
   }
 
-  set longitude(value: number) {
+  public set longitude(value: number) {
     this._longitude = value;
 
     const attributeValue = String(value);
@@ -59,11 +81,12 @@ export class UmiLocationElement extends HTMLElement {
     }
   }
 
-  get color(): string {
+  /** Optional display color associated with the location. */
+  public get color(): string {
     return this._color;
   }
 
-  set color(value: string) {
+  public set color(value: string) {
     this._color = value;
 
     if (this.getAttribute("color") !== value) {
@@ -71,11 +94,12 @@ export class UmiLocationElement extends HTMLElement {
     }
   }
 
-  get timezone(): string {
+  /** IANA timezone identifier associated with the location. */
+  public get timezone(): string {
     return this._timezone;
   }
 
-  set timezone(value: string) {
+  public set timezone(value: string) {
     this._timezone = value;
 
     if (this.getAttribute("timezone") !== value) {
@@ -117,7 +141,7 @@ export class UmiLocationElement extends HTMLElement {
       case "color":
         this._color = value ?? "";
         break;
-        
+
       case "timezone":
         this._timezone = value ?? "";
         break;
@@ -132,11 +156,11 @@ export class UmiLocationElement extends HTMLElement {
 }
 
 if (!customElements.get("umi-location")) {
-  customElements.define("umi-location", UmiLocationElement);
+  customElements.define("umi-location", UmiLocation);
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "umi-location": UmiLocationElement;
+    "umi-location": UmiLocation;
   }
 }

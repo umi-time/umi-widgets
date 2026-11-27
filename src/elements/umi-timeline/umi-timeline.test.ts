@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { UmiTimelineElement, UmiTimelineRowElement } from "./index";
+import { UmiTimeline, UmiTimelineRow } from "./index";
 
 describe("<umi-timeline>", () => {
   afterEach(() => {
@@ -7,8 +7,8 @@ describe("<umi-timeline>", () => {
   });
 
   it("registers both <umi-timeline> and <umi-timeline-row>", () => {
-    expect(customElements.get("umi-timeline")).toBe(UmiTimelineElement);
-    expect(customElements.get("umi-timeline-row")).toBe(UmiTimelineRowElement);
+    expect(customElements.get("umi-timeline")).toBe(UmiTimeline);
+    expect(customElements.get("umi-timeline-row")).toBe(UmiTimelineRow);
   });
 
   it("renders stacked location rows with computed Φ day phases", () => {
@@ -33,14 +33,14 @@ describe("<umi-timeline>", () => {
   it("creates a timeline element", () => {
     const timeline = document.createElement("umi-timeline");
 
-    expect(timeline).toBeInstanceOf(UmiTimelineElement);
+    expect(timeline).toBeInstanceOf(UmiTimeline);
   });
 
   it("adds timeline rows", () => {
     const timeline = document.createElement("umi-timeline");
     const row = timeline.addLocation("Tokyo", 35.6764, 139.65);
 
-    expect(row).toBeInstanceOf(UmiTimelineRowElement);
+    expect(row).toBeInstanceOf(UmiTimelineRow);
     expect(timeline.querySelectorAll("umi-timeline-row")).toHaveLength(1);
   });
 

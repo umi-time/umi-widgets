@@ -1,6 +1,17 @@
+/**
+ * Supported attributes for the <umi-tip> element.
+ */
 export type UmiTipAttribute = "focus-on" | "explanation";
 
-export class UmiTipElement extends HTMLElement {
+/**
+ * Defines a single instructional tip for use within a <umi-tip-rotator>.
+ *
+ * This is a non-visual data element that supplies the focus topic and
+ * explanatory text displayed by the parent tip rotator.
+ *
+ * @event umi-tip-change Fired when the tip content changes.
+ */
+export class UmiTip extends HTMLElement {
   static get observedAttributes(): readonly UmiTipAttribute[] {
     return ["focus-on", "explanation"];
   }
@@ -8,11 +19,12 @@ export class UmiTipElement extends HTMLElement {
   private _focusOn = "";
   private _explanation = "";
 
-  get focusOn(): string {
+  /** Topic or feature highlighted by the tip. */
+  public get focusOn(): string {
     return this._focusOn;
   }
 
-  set focusOn(value: string) {
+  public set focusOn(value: string) {
     this._focusOn = value;
 
     if (this.getAttribute("focus-on") !== value) {
@@ -20,11 +32,12 @@ export class UmiTipElement extends HTMLElement {
     }
   }
 
-  get explanation(): string {
+  /** Explanatory text displayed by the tip rotator. */
+  public get explanation(): string {
     return this._explanation;
   }
 
-  set explanation(value: string) {
+  public set explanation(value: string) {
     this._explanation = value;
 
     if (this.getAttribute("explanation") !== value) {
@@ -37,7 +50,7 @@ export class UmiTipElement extends HTMLElement {
     _oldValue: string | null,
     value: string | null,
   ): void {
-    switch (name) {
+    switch (name as UmiTipAttribute) {
       case "focus-on":
         this._focusOn = value ?? "";
         break;
@@ -58,6 +71,6 @@ export class UmiTipElement extends HTMLElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "umi-tip": UmiTipElement;
+    "umi-tip": UmiTip;
   }
 }

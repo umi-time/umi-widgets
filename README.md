@@ -41,8 +41,8 @@ Learn more at the Umi-Time project website.
 | Widget | Purpose |
 |----------|----------|
 | `umi-clock` | Live analog and digital Umi-Time clock |
-| `umi-display` | Human-friendly formatted output |
-| `umi-time` | Canonical Umi-Time representation |
+| `umi-readout` | Human-friendly formatted output |
+| `umi-timestamp` | Canonical Umi-Time representation |
 | `umi-world-map` | Global visualization |
 | `umi-timeline` | Multi-location comparison |
 | `umi-time-explorer` | Interactive educational explorer |

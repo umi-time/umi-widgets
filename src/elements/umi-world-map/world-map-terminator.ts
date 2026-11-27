@@ -8,8 +8,14 @@ import {
   mercatorProject,
 } from "./world-map-projection";
 
+/**
+ * A point on the computed day/night terminator line.
+ */
 export interface TerminatorPoint {
+  /** Horizontal position in pixels. */
   x: number;
+
+  /** Vertical position in pixels. */
   y: number;
 }
 
@@ -17,12 +23,31 @@ const LAT_TOP = toRad(MAP_MAX_LATITUDE);
 const LAT_BOTTOM = toRad(MAP_MIN_LATITUDE);
 const EQUINOX_EPSILON = toRad(0.01);
 
+/**
+ * Geometry describing the day/night terminator rendered on the world map.
+ */
 export interface TerminatorGeometry {
+  /** Points forming the projected terminator curve. */
   points: TerminatorPoint[];
 
+  /**
+   * Indicates whether the nighttime region extends across the top edge
+   * of the map projection.
+   */
   borderOnTop: boolean;
 }
 
+/**
+ * Computes the projected day/night terminator for the specified time.
+ *
+ * The returned geometry can be used to render the boundary between the
+ * illuminated and dark portions of the Earth on the world map.
+ *
+ * @param date Time for which to calculate the terminator.
+ * @param width Width of the map in pixels.
+ * @param height Height of the map in pixels.
+ * @returns Projected terminator geometry for the map.
+ */
 export function computeTerminator(
   date: Date,
   width: number,

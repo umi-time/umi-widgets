@@ -5,10 +5,16 @@ import {
   MAP_MAX_LATITUDE,
 } from "../umi-world-map";
 
+/**
+ * GeoJSON feature collection containing timezone boundary geometries.
+ */
 export interface GeoJsonFeatureCollection {
   features: GeoJsonFeature[];
 }
 
+/**
+ * GeoJSON feature containing a timezone boundary geometry.
+ */
 export interface GeoJsonFeature {
   geometry: {
     type: string;
@@ -20,6 +26,15 @@ export interface GeoJsonFeature {
 const urlCache = new Map<string, GeoJsonFeatureCollection>();
 const inflightRequests = new Map<string, Promise<GeoJsonFeatureCollection>>();
 
+/**
+ * Loads timezone boundary data from a GeoJSON source.
+ *
+ * When no URL is provided, the bundled timezone dataset is returned.
+ * Results are cached to avoid redundant network requests.
+ *
+ * @param url Optional URL of a GeoJSON timezone dataset.
+ * @returns A GeoJSON feature collection containing timezone boundaries.
+ */
 export async function loadTimeZones(
   url?: string,
 ): Promise<GeoJsonFeatureCollection> {
@@ -62,6 +77,15 @@ function clampMapLatitude(latitude: number): number {
   return Math.max(MAP_MIN_LATITUDE, Math.min(MAP_MAX_LATITUDE, latitude));
 }
 
+/**
+ * Converts a GeoJSON linear ring into an SVG path string using the
+ * world map's Mercator projection.
+ *
+ * @param ring Array of [longitude, latitude] coordinate pairs.
+ * @param width Width of the target map in pixels.
+ * @param height Height of the target map in pixels.
+ * @returns SVG path data representing the projected ring.
+ */
 export function ringToPath(
   ring: number[][],
   width: number,
@@ -87,6 +111,18 @@ export function ringToPath(
   return commands.join(" ");
 }
 
+/**
+ * Converts a GeoJSON polygon into an SVG path string using the world map's
+ * Mercator projection.
+ *
+ * Each ring in the polygon is projected and combined into a single SVG
+ * path suitable for rendering on the map.
+ *
+ * @param polygon GeoJSON polygon coordinates.
+ * @param width Width of the target map in pixels.
+ * @param height Height of the target map in pixels.
+ * @returns SVG path data representing the projected polygon.
+ */
 export function polygonToPath(
   polygon: number[][][],
   width: number,

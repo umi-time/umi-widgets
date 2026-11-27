@@ -1,27 +1,35 @@
-import { UmiTime as UmiTimeCore } from "umi-time";
+import { UmiTime } from "umi-time";
 import { clampLongitude } from "../../shared/coordinates";
 
 const SVG_NS = "http://www.w3.org/2000/svg" as const;
 const UMI_SYMBOL_PATH = "M 153.7 39.4 A 76 76 0 1 1 46.3 39.4";
 
-export type UmiDisplayAttribute =
+/**
+ * Supported attributes for the <umi-readout> element.
+ */
+export type UmiReadoutAttribute =
   | "value"
   | "live"
   | "seconds"
   | "longitude"
   | "update-interval";
 
-export class UmiDisplayElement extends HTMLElement {
-  static get observedAttributes(): readonly UmiDisplayAttribute[] {
+/**
+ * Displays a textual Umi-Time value and optionally updates live as time
+ * advances. The display can be configured to show seconds and can derive
+ * local context from a longitude.
+ */
+export class UmiReadout extends HTMLElement {
+  static get observedAttributes(): readonly UmiReadoutAttribute[] {
     return ["value", "live", "seconds", "longitude", "update-interval"];
   }
 
-  public live = false;
-  public showSeconds = false;
-  public longitude: number | null = null;
-  public updateInterval = 250;
+  private _value: string | null = null;
+  private _live = false;
+  private _showSeconds = false;
+  private _longitude: number | null = null;
+  private _updateInterval = 250;
 
-  private rawValue: string | null = null;
   private parsedFixedDate: Date | null = null;
   private timer: number | null = null;
 
@@ -30,6 +38,74 @@ export class UmiDisplayElement extends HTMLElement {
   private readonly umiText: Text;
   private readonly secondsSpan: HTMLSpanElement;
   private readonly phaseSpan: HTMLSpanElement;
+
+  /** Umi-Time value to display. */
+  public get value(): string | null {
+    return this._value;
+  }
+
+  public set value(value: string | null) {
+    if (value === null) {
+      this.removeAttribute("value");
+    } else {
+      if (this.getAttribute("value") !== value) {
+        this.setAttribute("value", value);
+      }
+    }
+  }
+
+  /** Enables automatic updating as time advances. */
+  public get live(): boolean {
+    return this._live;
+  }
+
+  public set live(value: boolean) {
+    if (this.hasAttribute("live") !== value) {
+      this.toggleAttribute("live", value);
+    }
+  }
+
+  /** Displays seconds in the rendered time value. */
+  public get showSeconds(): boolean {
+    return this._showSeconds;
+  }
+
+  public set showSeconds(value: boolean) {
+    if (this.hasAttribute("seconds") !== value) {
+      this.toggleAttribute("seconds", value);
+    }
+  }
+
+  /**
+   * Optional longitude used to provide local context for the displayed
+   * Umi-Time value.
+   */
+  public get longitude(): number | null {
+    return this._longitude;
+  }
+
+  public set longitude(value: number | null) {
+    if (value === null) {
+      this.removeAttribute("longitude");
+    } else {
+      const longitudeValue = String(value);
+      if (this.getAttribute("longitude") !== longitudeValue) {
+        this.setAttribute("longitude", longitudeValue);
+      }
+    }
+  }
+
+  /** Refresh interval in milliseconds when live updating is enabled. */
+  public get updateInterval(): number {
+    return this._updateInterval;
+  }
+
+  public set updateInterval(value: number) {
+    const updateIntervalValue = String(value);
+    if (this.getAttribute("update-interval") !== updateIntervalValue) {
+      this.setAttribute("update-interval", updateIntervalValue);
+    }
+  }
 
   constructor() {
     super();
@@ -106,18 +182,12 @@ export class UmiDisplayElement extends HTMLElement {
     this.shadow.append(style, this.timeEl);
   }
 
-  get value(): string | null {
-    return this.rawValue;
-  }
-
-  set value(val: string | null) {
-    if (val === null) {
-      this.removeAttribute("value");
-    } else {
-      this.setAttribute("value", val);
-    }
-  }
-
+  /**
+   * Updates the longitude used to provide local context for the displayed
+   * Umi-Time value.
+   *
+   * @param lon Longitude in decimal degrees, or null to disable local context.
+   */
   public setLongitude(lon: number | null): void {
     if (lon === null) {
       this.longitude = null;
@@ -135,7 +205,7 @@ export class UmiDisplayElement extends HTMLElement {
 
   connectedCallback(): void {
     this.render();
-    if (this.live) {
+    if (this._live) {
       this.start();
     }
   }
@@ -151,32 +221,32 @@ export class UmiDisplayElement extends HTMLElement {
   ): void {
     if (oldValue === newValue) return;
 
-    switch (name as UmiDisplayAttribute) {
+    switch (name as UmiReadoutAttribute) {
       case "value":
-        this.rawValue = newValue;
+        this._value = newValue;
         this.parsedFixedDate = this.parseInputToDate(newValue);
         break;
       case "live":
-        this.live = newValue !== null && newValue !== "false";
-        if (this.live && this.isConnected) {
+        this._live = newValue !== null && newValue !== "false";
+        if (this._live && this.isConnected) {
           this.start();
         } else {
           this.stop();
         }
         break;
       case "seconds":
-        this.showSeconds = newValue !== null && newValue !== "false";
+        this._showSeconds = newValue !== null && newValue !== "false";
         break;
       case "longitude":
-        this.longitude =
+        this._longitude =
           newValue !== null ? clampLongitude(parseFloat(newValue)) : null;
         break;
       case "update-interval":
         if (newValue !== null) {
           const parsed = parseInt(newValue, 10);
           if (Number.isFinite(parsed) && parsed > 0) {
-            this.updateInterval = parsed;
-            if (this.live && this.isConnected) {
+            this._updateInterval = parsed;
+            if (this._live && this.isConnected) {
               this.start();
             }
           }
@@ -187,14 +257,20 @@ export class UmiDisplayElement extends HTMLElement {
     this.render();
   }
 
+  /**
+   * Starts automatic updates when live mode is enabled.
+   */
   public start(): void {
     this.stop();
     this.render();
     this.timer = window.setInterval(() => {
       this.render();
-    }, this.updateInterval);
+    }, this._updateInterval);
   }
 
+  /**
+   * Stops automatic updates.
+   */
   public stop(): void {
     if (this.timer !== null) {
       window.clearInterval(this.timer);
@@ -202,7 +278,10 @@ export class UmiDisplayElement extends HTMLElement {
     }
   }
 
-  public render(): void {
+  /**
+   * Re-renders the displayed Umi-Time value using the current configuration.
+   */
+  render(): void {
     const target = this.resolveCurrentUmiTime();
     if (!target) {
       this.umiText.nodeValue = "Invalid time";
@@ -215,7 +294,7 @@ export class UmiDisplayElement extends HTMLElement {
     this.timeEl.setAttribute("datetime", target.utc.toISOString());
     this.umiText.nodeValue = target.format("uuu");
 
-    if (this.showSeconds) {
+    if (this._showSeconds) {
       this.secondsSpan.textContent = `${target.format("sss")}s`;
       this.secondsSpan.removeAttribute("hidden");
     } else {
@@ -223,8 +302,8 @@ export class UmiDisplayElement extends HTMLElement {
       this.secondsSpan.setAttribute("hidden", "");
     }
 
-    if (this.longitude !== null) {
-      const localAngle = (((target.umi + this.longitude) % 360) + 360) % 360;
+    if (this._longitude !== null) {
+      const localAngle = (((target.umi + this._longitude) % 360) + 360) % 360;
       const dayPhase = Math.floor(localAngle / 15);
       this.phaseSpan.textContent = `\u03A6${dayPhase}`;
       this.phaseSpan.removeAttribute("hidden");
@@ -234,12 +313,12 @@ export class UmiDisplayElement extends HTMLElement {
     }
   }
 
-  private resolveCurrentUmiTime(): UmiTimeCore | null {
+  private resolveCurrentUmiTime(): UmiTime | null {
     const date =
-      this.live || this.rawValue === null ? new Date() : this.parsedFixedDate;
+      this._live || this._value === null ? new Date() : this.parsedFixedDate;
 
     if (!date) return null;
-    return new UmiTimeCore(date);
+    return new UmiTime(date);
   }
 
   private parseInputToDate(raw: string | null): Date | null {
@@ -255,7 +334,7 @@ export class UmiDisplayElement extends HTMLElement {
     }
 
     try {
-      return UmiTimeCore.parse(trimmed).utc;
+      return UmiTime.parse(trimmed).utc;
     } catch {
       return null;
     }
@@ -264,6 +343,6 @@ export class UmiDisplayElement extends HTMLElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "umi-display": UmiDisplayElement;
+    "umi-readout": UmiReadout;
   }
 }

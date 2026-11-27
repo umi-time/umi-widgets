@@ -1,3 +1,6 @@
+/**
+ * Supported attributes for the <umi-demo-bouncing-clock> element.
+ */
 export type UmiDemoBouncingClockAttribute = "dark";
 
 interface DemoLocation {
@@ -13,9 +16,16 @@ const MIN_CLOCK_SIZE = 180;
 const MAX_CLOCK_SIZE = 600;
 const INTRINSIC_CLOCK_SIZE = 900;
 
+/**
+ * Demonstrates an animated Umi-Time clock that moves around the viewport,
+ * showcasing the clock component and its responsive behavior.
+ */
 export class UmiDemoBouncingClock extends HTMLElement {
-  private readonly shadow: ShadowRoot;
+  static get observedAttributes(): readonly UmiDemoBouncingClockAttribute[] {
+    return ["dark"];
+  }
 
+  private _dark = false;
   private animationFrame = 0;
   private x = 100;
   private y = 100;
@@ -29,6 +39,18 @@ export class UmiDemoBouncingClock extends HTMLElement {
 
   private resizeObserver?: ResizeObserver;
   private locations: DemoLocation[] = [];
+  private readonly shadow: ShadowRoot;
+
+  /** Enables the dark color scheme when true. */
+  public get dark(): boolean {
+    return this._dark;
+  }
+
+  public set dark(value: boolean) {
+    if (this.hasAttribute("dark") !== value) {
+      this.toggleAttribute("dark", value);
+    }
+  }
 
   constructor() {
     super();
@@ -370,10 +392,6 @@ export class UmiDemoBouncingClock extends HTMLElement {
     `;
   }
 
-  static get observedAttributes(): readonly UmiDemoBouncingClockAttribute[] {
-    return ["dark"];
-  }
-
   connectedCallback(): void {
     if (!this.initialized) {
       this.initializeControls();
@@ -418,6 +436,7 @@ export class UmiDemoBouncingClock extends HTMLElement {
     }
 
     if (name === "dark") {
+      this._dark = newValue !== null;
       this.updateTheme();
     }
   }
@@ -450,12 +469,8 @@ export class UmiDemoBouncingClock extends HTMLElement {
     );
   }
 
-  private get dark(): boolean {
-    return this.hasAttribute("dark");
-  }
-
   private updateTheme(): void {
-    const dark = this.dark;
+    const dark = this._dark;
     const themedElements = this.shadow.querySelectorAll(
       "umi-clock, umi-time-explorer, umi-tip-rotator",
     );

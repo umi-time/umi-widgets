@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { UmiTimeElement } from "./index";
+import { UmiTimestamp } from "./index";
 
-describe("<umi-time>", () => {
+describe("<umi-timestamp>", () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
@@ -12,11 +12,11 @@ describe("<umi-time>", () => {
   });
 
   it("registers the custom element safely", () => {
-    expect(customElements.get("umi-time")).toBe(UmiTimeElement);
+    expect(customElements.get("umi-timestamp")).toBe(UmiTimestamp);
   });
 
   it("formats a fixed ISO timestamp using the default uuu:sss format", () => {
-    const el = document.createElement("umi-time");
+    const el = document.createElement("umi-timestamp");
     el.setAttribute("value", "2026-11-01T09:34:56.000Z");
     document.body.appendChild(el);
 
@@ -26,7 +26,7 @@ describe("<umi-time>", () => {
   });
 
   it("supports custom canonical format strings and longitude context", () => {
-    const el = document.createElement("umi-time");
+    const el = document.createElement("umi-timestamp");
     el.setAttribute("value", "2026-11-01T09:34:56.000Z");
     el.setAttribute("format", "yyyy-MM-ddUuuu:sss");
     el.setAttribute("longitude", "-120.64");
@@ -39,7 +39,7 @@ describe("<umi-time>", () => {
   it("ticks live and stops interval on disconnect", () => {
     vi.setSystemTime(new Date("2026-11-01T00:00:00.000Z"));
 
-    const el = document.createElement("umi-time");
+    const el = document.createElement("umi-timestamp");
     el.setAttribute("live", "");
     el.setAttribute("format", "Uuuu:sss");
     document.body.appendChild(el);
@@ -52,11 +52,11 @@ describe("<umi-time>", () => {
     const clearSpy = vi.spyOn(window, "clearInterval");
     el.remove();
     expect(clearSpy).toHaveBeenCalled();
-    expect((el as UmiTimeElement)["timer"]).toBeNull();
+    expect((el as UmiTimestamp)["timer"]).toBeNull();
   });
 
   it("renders invalid time for invalid input", () => {
-    const el = document.createElement("umi-time");
+    const el = document.createElement("umi-timestamp");
 
     el.setAttribute("value", "not-a-time");
     document.body.appendChild(el);
@@ -67,7 +67,7 @@ describe("<umi-time>", () => {
   });
 
   it("clamps longitude values", () => {
-    const el = document.createElement("umi-time");
+    const el = document.createElement("umi-timestamp");
 
     el.setAttribute("longitude", "999");
     document.body.appendChild(el);
@@ -76,7 +76,7 @@ describe("<umi-time>", () => {
   });
 
   it("updates interval when update-interval is changed", () => {
-    const el = document.createElement("umi-time");
+    const el = document.createElement("umi-timestamp");
 
     el.setAttribute("update-interval", "1000");
 
@@ -84,7 +84,7 @@ describe("<umi-time>", () => {
   });
 
   it("reflects value property to attribute", () => {
-    const el = document.createElement("umi-time");
+    const el = document.createElement("umi-timestamp");
 
     el.value = "2026-11-01T09:34:56.000Z";
 

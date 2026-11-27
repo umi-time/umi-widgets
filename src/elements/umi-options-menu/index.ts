@@ -1,11 +1,11 @@
-import { UmiOptionElement, UmiOptionAttribute } from "./umi-option";
-import { UmiOptionsMenuElement, UmiOptionsMenuAttribute } from "./umi-options-menu";
+import { UmiOption } from "./umi-option";
+import { UmiOptionsMenu } from "./umi-options-menu";
 
-export { UmiOptionElement };
-export type { UmiOptionAttribute };
+export { UmiOption };
+export type { UmiOptionAttribute } from "./umi-option";
 
-export { UmiOptionsMenuElement };
-export type { UmiOptionsMenuAttribute };
+export { UmiOptionsMenu };
+export type { UmiOptionsMenuAttribute } from "./umi-options-menu";
 
 const UMI_OPTION_TAG = "umi-option";
 const UMI_OPTIONS_MENU_TAG = "umi-options-menu";
@@ -14,7 +14,7 @@ if (
   typeof window !== "undefined" &&
   !customElements.get(UMI_OPTION_TAG)
 ) {
-  customElements.define(UMI_OPTION_TAG, UmiOptionElement);
+  customElements.define(UMI_OPTION_TAG, UmiOption);
 }
 
 if (
@@ -23,6 +23,6 @@ if (
 ) {
   customElements.define(
     UMI_OPTIONS_MENU_TAG,
-    UmiOptionsMenuElement,
+    UmiOptionsMenu,
   );
 }

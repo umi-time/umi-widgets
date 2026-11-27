@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import "./index";
 
-describe("UmiWorldMapElement", () => {
+describe("UmiWorldMap", () => {
   it("registers as a custom element", () => {
     expect(customElements.get("umi-world-map")).toBeDefined();
   });
@@ -10,7 +10,7 @@ describe("UmiWorldMapElement", () => {
   it("creates the correct element type", () => {
     const map = document.createElement("umi-world-map");
 
-    expect(map.constructor.name).toBe("UmiWorldMapElement");
+    expect(map.constructor.name).toBe("UmiWorldMap");
   });
 
   it("starts with no locations", () => {
